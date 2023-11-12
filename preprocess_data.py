@@ -1,3 +1,12 @@
+"""
+
+Script to preprocess training data. 
+
+Download data from: https://www.kaggle.com/datasets/xainano/handwrittenmathsymbols
+
+Ensure that 'train images' is in same dir as this script.
+
+"""
 import numpy as np
 import cv2
 from PIL import Image
