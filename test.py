@@ -1,6 +1,7 @@
 import torch
+from nn import Net
 
-# Model class must be defined somewhere
+network = Net()
 PATH = 'results/model.pth'
-model = torch.load(PATH)
-model.eval()
+network.load_state_dict(torch.load(PATH))
+network.eval()
