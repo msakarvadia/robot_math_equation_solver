@@ -78,6 +78,7 @@ def train(epoch):
   network.train()
   for batch_idx, (data, target) in enumerate(my_dataloader):
     optimizer.zero_grad()
+    print(data.shape)
     output = network(data)
     loss = F.nll_loss(output, target)
     loss.backward()
