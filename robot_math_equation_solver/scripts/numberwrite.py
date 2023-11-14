@@ -18,10 +18,15 @@ path_prefix = os.path.dirname(__file__)
 def inv_kin(x, y, z):
         l1 = 0.077
         l2 = 0.130
-        l3 = 0.124
+        l3 = 0.124 + 0.126 # (gripper length added on)
         # lengths are predetermined
-        # order returned is t1 (lowest joint) - t3 (highest one)
+        # order returned is t1 (lowest joint) - t3 (highest one) 
+        # we're gonna work with the arm always level
         theta1 = math.atan2(y,x)
+
+        #r2 = r3 - l4*math.cos()
+
+        #theta3 = 
 
         c3 = ((x**2) + (y**2) + (z**2) - ((l1**2) + (l2**2) + (l3**2)) - ((2*l1)*(z-l1)))/(2*l2*l3)
         print("c3")
