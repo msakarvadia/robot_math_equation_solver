@@ -69,7 +69,7 @@ from nn import Net
 
 
 # hyperparameters
-n_epochs = 5
+n_epochs = 10
 learning_rate = 0.01
 momentum = 0.5
 log_interval = 100
