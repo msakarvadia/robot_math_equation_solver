@@ -63,7 +63,7 @@ def equation_from_image(img):
     
 #equation_from_image("test.jpeg")
 
-def do_inference(img_name:str):
+def do_inference(img_name:str, label:int):
 #currently we will just do inference on an image of a single digit
     #test_img = "0_46621.jpg"
     test_img = img_name
@@ -75,18 +75,23 @@ def do_inference(img_name:str):
     test_img = torch.from_numpy(im_resize.astype(np.single))
     #needs to be shape (1,1,28,28)
     test_img = test_img[None, None, :,:]
-    print(test_img.shape)
+    #print(test_img.shape)
 
     logits = network(test_img)
-    print("logits: ", logits)
+    #print("logits: ", logits)
     #we used NLL to train network so logit w/ lowest score is prediction
     prediction = torch.argmax(logits)
     print("prediction: ", prediction)
+    print("label: ", label)
 
 
     return prediction
 
 
-do_inference("4_48.jpg")
+do_inference("4_48.jpg", 4)
 
-do_inference("0_46621.jpg")
+do_inference("0_46621.jpg", 0)
+
+do_inference("3_40.jpg", 3)
+
+do_inference("8_362.jpg", 8)
