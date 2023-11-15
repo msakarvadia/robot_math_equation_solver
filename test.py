@@ -19,7 +19,7 @@ def equation_from_image(img):
     #get image binary. first convert image to grayscale.
     #thresh_binary_inv used because analyzed equation needs to be white with black bg
     #blur image a little to help get rid of noise
-    image_extract= cv2_imread(img, cv2.IMREAD_GRAYSCALE)
+    image_extract= cv2.imread(img, cv2.IMREAD_GRAYSCALE)
     image_extract= cv2.blur(image_extract, (5, 5)) #modify kernel value if needed
     #modify second variable if binarized image has too much noise from whiteboard
     #black whiteboard marker will work best and guarantee the most success
@@ -37,11 +37,12 @@ def equation_from_image(img):
         image_bounds= cv2.boundingRect(cntr)
         bounding_coords[i]= image_bounds
         i += 1
-        #preview_processing(image_bounds)
+        preview_processing(image_bounds)
 
     #check for overlapping rectangles
     checked_bounds= []
     i= 0
+    """ #NOTE(MS): I just commented this out so that I can test the rest of the program
     #assumed bounding rectangles recognize the numbers from left to right
     #CURRENTLY PSEUDOCODE, NEED TO CHECK STRUCTURE OF BOUNDS
     for idx in range(0, bounding_coords.len()-1):
@@ -58,22 +59,34 @@ def equation_from_image(img):
             idx += 2
 
     cv2.resize(img, (28,28))
+    """
+    
+#equation_from_image("test.jpeg")
 
+def do_inference(img_name:str):
 #currently we will just do inference on an image of a single digit
-test_img = "0_46621.jpg"
-img = cv2.imread(test_img,cv2.IMREAD_GRAYSCALE)
-img=~img
-im_resize = cv2.resize(img, (28,28))
+    #test_img = "0_46621.jpg"
+    test_img = img_name
+    img = cv2.imread(test_img,cv2.IMREAD_GRAYSCALE)
+    img=~img
+    im_resize = cv2.resize(img, (28,28))
 
-print(type(im_resize))
-test_img = torch.from_numpy(im_resize.astype(np.single))
-#needs to be shape (1,1,28,28)
-test_img = test_img[None, None, :,:]
-print(test_img.shape)
+    #print(type(im_resize))
+    test_img = torch.from_numpy(im_resize.astype(np.single))
+    #needs to be shape (1,1,28,28)
+    test_img = test_img[None, None, :,:]
+    print(test_img.shape)
 
-logits = network(test_img)
-print("logits: ", logits)
-#we used NLL to train network so logit w/ lowest score is prediction
-prediction = torch.argmin(logits)
-print("prediction: ", prediction)
+    logits = network(test_img)
+    print("logits: ", logits)
+    #we used NLL to train network so logit w/ lowest score is prediction
+    prediction = torch.argmax(logits)
+    print("prediction: ", prediction)
 
+
+    return prediction
+
+
+do_inference("4_48.jpg")
+
+do_inference("0_46621.jpg")
