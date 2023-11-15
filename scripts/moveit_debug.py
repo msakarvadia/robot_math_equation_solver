@@ -7,7 +7,6 @@ import moveit_commander
 class Debug:
     def __init__(self):
         rospy.init_node("moveit_debug")
-        print("<<>>")
         self.move_group_arm = moveit_commander.MoveGroupCommander("arm")
         self.move_group_gripper = moveit_commander.MoveGroupCommander("gripper")
 
