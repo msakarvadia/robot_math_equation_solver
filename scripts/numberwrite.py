@@ -73,14 +73,30 @@ class Robot(object):
         # Reset arm position
         # self.move_group_arm.go([0,0,0,0], wait=True)
         rospy.sleep(2)
+        
+        #self.move_group_arm.go([0,0,0,0], wait=True)
+        #rospy.sleep(2)
+
+        # Close the gripper
+        gripper_joint_goal = [-0.009, 0.009]
+        self.move_group_gripper.go(gripper_joint_goal, wait=True)
+        self.move_group_gripper.stop()
+        rospy.sleep(1)
+
+        print("intial x,y,z")
+        print("ARM", self.move_group_arm.get_current_pose().pose.position)
 
 
     def writenum(self):
         
         #test
         t1, t2, t3 = inv_kin(0.194, 0.000, 0.304)
-        arm_joint_goal = [t1, t2, t3, 0]
-        print(arm_joint_goal)
+
+        print(t1)
+        print(t2)
+        print(t3)
+
+        arm_joint_goal = [t1, t2, t3, -0.1]
         self.move_group_arm.go(arm_joint_goal, wait=True)
         self.move_group_arm.stop()
         rospy.sleep(5)
