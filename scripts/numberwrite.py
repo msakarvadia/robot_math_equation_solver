@@ -16,7 +16,7 @@ def inv_kin(x, y, z):
 
         l1 = 0.035 + 0.141              # arm-base + turtlebot height
         l2 = 0.130                      # arm length 
-        l3 = 0.124 + 0.126 - 0.0535     # arm length + gripper - delta
+        l3 = 0.124 + 0.126 - 0.0545     # arm length + gripper - delta
 
         c3 = (x**2 + y**2 + z**2 - (l1**2 + l2**2 + l3**2) - 2 * l1 * (z - l1)) / (2 * l2 * l3)
         s3 = -np.sqrt(1 - c3)
@@ -96,10 +96,40 @@ class Robot(object):
         print(t2)
         print(t3)
 
-        arm_joint_goal = [t1, t2, t3, -0.1]
+        arm_joint_goal = [t1, t2, t3, 0.0]
         self.move_group_arm.go(arm_joint_goal, wait=True)
         self.move_group_arm.stop()
         rospy.sleep(5)
+
+        t1, t2, t3 = inv_kin(0.194, -0.020, 0.304)
+
+        arm_joint_goal = [t1, t2, t3, 0]
+        self.move_group_arm.go(arm_joint_goal, wait=True)
+        self.move_group_arm.stop()
+        rospy.sleep(5)
+
+        t1, t2, t3 = inv_kin(0.194, -0.020, 0.264)
+
+        arm_joint_goal = [t1, t2, t3, 0]
+        self.move_group_arm.go(arm_joint_goal, wait=True)
+        self.move_group_arm.stop()
+        rospy.sleep(5)
+
+        t1, t2, t3 = inv_kin(0.194, 0.0, 0.264)
+
+        arm_joint_goal = [t1, t2, t3, 0]
+        self.move_group_arm.go(arm_joint_goal, wait=True)
+        self.move_group_arm.stop()
+        rospy.sleep(5)
+
+        t1, t2, t3 = inv_kin(0.194, 0.0, 0.304)
+
+        arm_joint_goal = [t1, t2, t3, 0]
+        self.move_group_arm.go(arm_joint_goal, wait=True)
+        self.move_group_arm.stop()
+        rospy.sleep(5)
+
+
 
 
     def run(self):
