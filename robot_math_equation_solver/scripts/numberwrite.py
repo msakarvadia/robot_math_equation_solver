@@ -28,11 +28,12 @@ def inv_kin(x, y, z):
 
         #theta3 = 
 
-        c3 = ((x**2) + (y**2) + (z**2) - ((l1**2) + (l2**2) + (l3**2)) - ((2*l1)*(z-l1)))/(2*l2*l3)
+        c3 = (((x**2) + (y**2) + (z**2)) - ((l1**2) + (l2**2) + (l3**2)) - ((2*l1)*(z-l1)))/(2*l2*l3)
         print("c3")
         print(c3)
         s3 = np.sqrt(1 - c3)
         theta3 = math.atan2(s3,c3)
+        # if theta3 
 
         k1 = (c3*l3) + l2
         k2 = s3 * l3
@@ -43,6 +44,17 @@ def inv_kin(x, y, z):
         theta2 = math.asin((ap + np.sqrt(bp))/(2*(k1**2 + k2**2)))
 
         return theta1, theta2, theta3
+
+def inv_kin_4d(x, y, z):
+    l1 = 0.077
+    l2 = 0.130
+    l3 = 0.124 
+    l4 = 0.126
+
+
+    theta1 = math.atan2(y,x)
+    
+
 
 class Robot(object):
 
@@ -82,24 +94,66 @@ class Robot(object):
         self.move_group_gripper = moveit_commander.MoveGroupCommander("gripper")
 
         # Reset arm position
-        self.move_group_arm.go([0,0,0,0], wait=True)
-        rospy.sleep(2)
+        
+        #self.move_group_arm.go([0,0,0,0], wait=True)
+        #rospy.sleep(2)
+
+        # Close the gripper
+        gripper_joint_goal = [-0.009, 0.009]
+        self.move_group_gripper.go(gripper_joint_goal, wait=True)
+        self.move_group_gripper.stop()
+        rospy.sleep(1)
+
+        print("intial x,y,z")
+        print("ARM", self.move_group_arm.get_current_pose().pose.position)
 
     
 
     def writenum(self):
         
-        #test
-        t1, t2, t3 = inv_kin(0.2, 0.02, 0.02)
+        #test - x, y, z
+        # 0.3, 0.05, 0.1 <- abort 
+        t1, t2, t3 = inv_kin(0.303, 0.0, -0.14)
+
+        
+
+        #t1, t2, t3 = inv_kin(0.19, 0.004, 0.29)
 
         print(t1)
         print(t2)
         print(t3)
 
+        arm_joint_goal = [t1, t2, t3, -0.1]
+        self.move_group_arm.go(arm_joint_goal, wait=True)
+        self.move_group_arm.stop()
+        rospy.sleep(5)
+
+        print("next x,y,z")
+        print("ARM", self.move_group_arm.get_current_pose().pose.position)
+
+        t1, t2, t3 = inv_kin(0.303, 0.02, -0.14)
+
+        arm_joint_goal = [t1, t2, t3, -0.1]
+        self.move_group_arm.go(arm_joint_goal, wait=True)
+        self.move_group_arm.stop()
+        rospy.sleep(5)
+
+        t1, t2, t3 = inv_kin(0.303, 0.02, -0.13)
+
         arm_joint_goal = [t1, t2, t3, 0]
         self.move_group_arm.go(arm_joint_goal, wait=True)
         self.move_group_arm.stop()
         rospy.sleep(5)
+
+        t1, t2, t3 = inv_kin(0.303, 0.0, -0.13)
+
+        arm_joint_goal = [t1, t2, t3, 0]
+        self.move_group_arm.go(arm_joint_goal, wait=True)
+        self.move_group_arm.stop()
+        rospy.sleep(5)
+
+
+
 
 
 
