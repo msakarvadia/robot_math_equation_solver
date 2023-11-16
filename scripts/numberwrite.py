@@ -15,54 +15,59 @@ from sensor_msgs.msg import Image
 # Path of directory on where this file is located
 path_prefix = os.path.dirname(__file__)
 
+def inv_kin(x, y, z):
+        l1 = 0.077
+        l2 = 0.130
+        l3 = 0.124 + 0.126 # (gripper length added on)
+        # lengths are predetermined
+        # order returned is t1 (lowest joint) - t3 (highest one) 
+        # we're gonna work with the arm always level
+        theta1 = math.atan2(y,x)
+
+        #r2 = r3 - l4*math.cos()
+
+        #theta3 = 
+
+        c3 = (((x**2) + (y**2) + (z**2)) - ((l1**2) + (l2**2) + (l3**2)) - ((2*l1)*(z-l1)))/(2*l2*l3)
+        print("c3")
+        print(c3)
+        s3 = np.sqrt(1 - c3)
+        theta3 = math.atan2(s3,c3)
+        # if theta3 
+
+        k1 = (c3*l3) + l2
+        k2 = s3 * l3
+
+        ap = (-2)*k1*(l1 - z)
+        bp = (((2*k1)*(l1-z))**2) - (4)*(k1**2 + k2**2)*(z**2 + l1**2 - k2**2 - (2*z*l1))
+        # math.atan2(((z - l1)(c1 - s1)), (x - y)) - math.atan2((s3*l3), ((c3*l3)+ l2))
+        theta2 = math.asin((ap + np.sqrt(bp))/(2*(k1**2 + k2**2)))
+
+        return theta1, theta2, theta3
+
+def inv_kin_4d(x, y, z):
+    l1 = 0.077
+    l2 = 0.130
+    l3 = 0.124 
+    l4 = 0.126
+
+
+    theta1 = math.atan2(y,x)
+    
+
+
 class Robot(object):
 
     def __init__(self):
         # initialize this node
         rospy.init_node('move_robot')
 
-        # Get the saved q matrix
-        self.q_learning_matrix = np.loadtxt(os.path.dirname(__file__) + "/q_learning_matrix.csv", delimiter=",", dtype=str)
+       
 
-        # Get the action matrix
-        self.action_matrix = np.loadtxt(path_prefix + "action_matrix.txt")
 
-        # Fetch actions. These are the only 9 possible actions the system can take.
-        # self.actions is an array of dictionaries where the row index corresponds
-        # to the action number, and the value has the following form:
-        # { object: "pink", tag: 1}
-        colors = ["pink", "green", "blue"]
-        self.actions = np.loadtxt(path_prefix + "actions.txt")
-        self.actions = list(map(
-            lambda x: {"object": colors[int(x[0])], "tag": int(x[1])},
-            self.actions
-        ))
-
-        # Get the states
-
-        # Fetch states. There are 64 states. Each row index corresponds to the
-        # state number, and the value is a list of 3 items indicating the positions
-        # of the pink, green, blue dumbbells respectively.
-        # e.g. [[0, 0, 0], [1, 0 , 0], [2, 0, 0], ..., [3, 3, 3]]
-        # e.g. [0, 1, 2] indicates that the green dumbbell is at block 1, and blue at block 2.
-        # A value of 0 corresponds to the origin. 1/2/3 corresponds to the block number.
-        # Note: that not all states are possible to get to.
-        self.states = np.loadtxt(path_prefix + "states.txt")
-        self.states = list(map(lambda x: list(map(lambda y: int(y), x)), self.states))
-
-        # Keep track of the current state and action
-        self.curr_state = 0
-        self.curr_action = None
-        self.curr_action_index = None
-
-        #differentiate which image component is being searched for
-        self.batonact = False
-        self.artagact = False
-
-        self.completed_iterations = 0
 
         # initalize the debugging window
-        cv2.namedWindow("window", 1)
+        # cv2.namedWindow("window", 1)
 
         lin = Vector3()
         ang = Vector3()
@@ -72,13 +77,13 @@ class Robot(object):
         self.cmdpublisher = rospy.Publisher('/cmd_vel', Twist, queue_size = 10)
 
         # subscribe to the robot's RGB camera data stream
-        self.image_sub = rospy.Subscriber('camera/rgb/image_raw', Image, self.image_callback)
+        # self.image_sub = rospy.Subscriber('camera/rgb/image_raw', Image, self.image_callback)
 
-        self.bridge = cv_bridge.CvBridge()
+        # self.bridge = cv_bridge.CvBridge()
 
         # subscribe to the lidar scan from the robot
-        self.scan = LaserScan()
-        rospy.Subscriber("/scan", LaserScan, self.get_scan)
+        # self.scan = LaserScan()
+        # rospy.Subscriber("/scan", LaserScan, self.get_scan)
 
         # the interface to the group of joints making up the turtlebot3
         # openmanipulator arm
@@ -89,18 +94,74 @@ class Robot(object):
         self.move_group_gripper = moveit_commander.MoveGroupCommander("gripper")
 
         # Reset arm position
-        self.move_group_arm.go([0,0,0,0], wait=True)
-        rospy.sleep(2)
+        
+        #self.move_group_arm.go([0,0,0,0], wait=True)
+        #rospy.sleep(2)
 
-    def inv_kin(x, y, self):
-        # lengths are predetermined
-        # x is also already known -> white board (can use lidar?)
-        # only y needed
+        # Close the gripper
+        gripper_joint_goal = [-0.009, 0.009]
+        self.move_group_gripper.go(gripper_joint_goal, wait=True)
+        self.move_group_gripper.stop()
+        rospy.sleep(1)
+
+        print("intial x,y,z")
+        print("ARM", self.move_group_arm.get_current_pose().pose.position)
+
+    
+
+    def writenum(self):
+        
+        #test - x, y, z
+        # 0.3, 0.05, 0.1 <- abort 
+        t1, t2, t3 = inv_kin(0.303, 0.0, -0.14)
+
+        
+
+        #t1, t2, t3 = inv_kin(0.19, 0.004, 0.29)
+
+        print(t1)
+        print(t2)
+        print(t3)
+
+        arm_joint_goal = [t1, t2, t3, -0.1]
+        self.move_group_arm.go(arm_joint_goal, wait=True)
+        self.move_group_arm.stop()
+        rospy.sleep(5)
+
+        print("next x,y,z")
+        print("ARM", self.move_group_arm.get_current_pose().pose.position)
+
+        t1, t2, t3 = inv_kin(0.303, 0.02, -0.14)
+
+        arm_joint_goal = [t1, t2, t3, -0.1]
+        self.move_group_arm.go(arm_joint_goal, wait=True)
+        self.move_group_arm.stop()
+        rospy.sleep(5)
+
+        t1, t2, t3 = inv_kin(0.303, 0.02, -0.13)
+
+        arm_joint_goal = [t1, t2, t3, 0]
+        self.move_group_arm.go(arm_joint_goal, wait=True)
+        self.move_group_arm.stop()
+        rospy.sleep(5)
+
+        t1, t2, t3 = inv_kin(0.303, 0.0, -0.13)
+
+        arm_joint_goal = [t1, t2, t3, 0]
+        self.move_group_arm.go(arm_joint_goal, wait=True)
+        self.move_group_arm.stop()
+        rospy.sleep(5)
+
+
+
+
+
+
 
         
 
     def run(self):
-
+        self.writenum()
         # rospy.spin()
 
 
