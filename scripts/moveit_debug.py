@@ -24,4 +24,3 @@ class Debug:
 if __name__ == "__main__":
     d = Debug()
     d.run()
-
