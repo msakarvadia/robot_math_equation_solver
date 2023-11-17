@@ -11,6 +11,8 @@ from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Vector3
 from sensor_msgs.msg import Image
 
+import sympy as sp
+from sympy.solvers import solve
 
 def inv_kin(x, y, z):
 
@@ -35,6 +37,51 @@ def inv_kin(x, y, z):
         theta3 += 0.155348
 
         return theta1, theta2, theta3
+
+
+def inv_kin_4d (x, y, z):
+    d1 = 0.077
+    a2 = 0.130
+    a3 = 0.124
+    a5 = 0.126
+
+    theta1 = math.atan2(y,x)
+
+    r3 = math.sqrt(x**2 + y**2)
+
+    z3 = z - d1
+
+    eq1 = sp.Eq(theta2 + theta3 + theta4 - total)
+    eq2 = sp.Eq(r3 - (a4 * math.cos(total)) - r2)
+    eq3 = sp.Eq(z3 - (a4 * math.sin(total)) - z2)
+
+    #can be plus or minus
+    eq4 = sp.Eq(math.acos((r2**2 + z2**2 - (a2**2 + a3**2))/(2*a2*a3)) - theta3)
+
+    # r2 = (a2 * math.cos(theta2)) + (a3 * math.cos(theta2 + theta3))
+    # z2 = (a2 * math.sin(theta2)) + (a3 * math.sin(theta2 + theta3))
+
+    # r2 = (math.cos(theta2) * (a2 + (a3 * math.sin(theta3)))) - (math.sin(theta2) * (a3 * math.sin(theta3)))
+    # z2 = (math.cos(theta2) * a3 * math.sin(theta3)) + (math.sin(theta2) * (a2 + (a3 * math.cos(theta3))))
+
+    # sin2/cos2
+    eq5 = sp.Eq(math.atan2(((a2 + (a3 * math.cos(theta3))) * z2 + (a3 *math.sin(theta3)) * r2) / (r2**2 + z2**2), ((a2 + (a3 * math.cos(theta3))) * r2 + (a3 *math.sin(theta3)) * z2) / (r2**2 + z2**2)) - theta2)
+    eq6 = sp.Eq(total - (theta2 + theta3) - theta4)
+
+    
+
+    output = solve([eq1, eq2, eq3, eq4, eq5, eq6], dict=True)
+    print(output)
+    values = list(output[0].values())
+
+    theta2 = values[0]
+    theta3 = values[1]
+    theta4 = values[2]
+
+    return theta1, theta2, theta3, theta4
+
+
+
 
 
 class Robot(object):
