@@ -7,20 +7,20 @@ from collections import deque
 import rospy
 
 from std_msgs.msg import String
-from robot_math_equation_solver.srv import SegmentGen, SegmentGenResponse
+from robot_math_equation_solver.srv import CharacterPath, CharacterPathResponse
 
 
 CHARACTER_SCALING = 0.002  # Characters set to 0.04m wide
 DIST_TO_BOARD = 0.3
 
 
-class SegmentService:
+class CharacterPathService:
 
     def __init__(self):
-        rospy.init_node("robot_math_segment_server")
+        rospy.init_node("robot_math_character_path_server")
 
         # Start service
-        self.segment_service = rospy.Service("/robot_math/segment_generator", SegmentGen, self.segment_service_response)
+        self.segment_service = rospy.Service("/robot_math/character_path_service", CharacterPath, self.service_response)
  
         # Subscribe to computer vision node
         self.math_string_sub = rospy.Subscriber("/robot_math/math_strings", String, self.math_string_callback)
@@ -31,13 +31,13 @@ class SegmentService:
 
         # Initialize service queue
         self.segment_queue = deque()
-    
+
  
-    def segment_service_response(self, request):
+    def service_response(self, request):
 
         # Process valid requests
         if request.request and len(self.segment_queue) > 0:
-            return SegmentGenResponse(segment=self.segment_queue.popleft(), cols=3)
+            return CharacterPathResponse(point_path=self.segment_queue.popleft(), dim=3)
 
 
     def math_string_callback(self, math_string):
@@ -56,7 +56,7 @@ class SegmentService:
                 # Initialize new array of points
                 char_path = []
 
-                # Populate the char_path array and scale the movments
+                # Populate the char_path array and scale the movements
                 for i, coord in enumerate(char_template):
                     if i % 2 == 0:
                         char_path.append(DIST_TO_BOARD)
@@ -78,5 +78,5 @@ class SegmentService:
 
 
 if __name__ == "__main__":
-    server = SegmentService()
+    server = CharacterPathService()
     server.run()

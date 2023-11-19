@@ -1,4 +1,0 @@
-bool request
----
-float32[] segment
-int32 cols
