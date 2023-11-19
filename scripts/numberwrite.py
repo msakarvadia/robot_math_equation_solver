@@ -17,7 +17,7 @@ from sympy.solvers import solve
 def inv_kin(x, y, z):
 
         # Set lengths
-        l1 = 0.077 + 0.141 - 0.03           # arm-base + turtlebot height - Lidar height
+        l1 = 0.077 + 0.141 - 0.03           # arm-base + turtlebot height - lidar height
         l2 = 0.130                          # upper arm length 
         l3 = 0.124 + 0.126                  # forearm length + gripper
 
