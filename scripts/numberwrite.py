@@ -16,25 +16,29 @@ from sympy.solvers import solve
 
 def inv_kin(x, y, z):
 
-        l1 = 0.035 + 0.141              # arm-base + turtlebot height
-        l2 = 0.130                      # arm length 
-        l3 = 0.124 + 0.126 - 0.0545     # arm length + gripper - delta
+        # Set lengths
+        l1 = 0.077 + 0.141 - 0.03           # arm-base + turtlebot height - Lidar height
+        l2 = 0.130                          # upper arm length 
+        l3 = 0.124 + 0.126                  # forearm length + gripper
 
+        # Calculate intermediary values
         c3 = (x**2 + y**2 + z**2 - (l1**2 + l2**2 + l3**2) - 2 * l1 * (z - l1)) / (2 * l2 * l3)
         s3 = -np.sqrt(1 - c3)
 
+        # Calculate theta1, theta2, theta3
         theta1 = math.atan2(y, x)
         theta2 = (math.atan2((z - l1) * (math.cos(theta1) - math.sin(theta1)), (x - y)) 
                   - math.atan2((s3 * l3), (c3 * l3 + l2)))
         theta3 = math.atan2(s3, c3)
 
-        # Map calculated angles to openmanipulator joints
+        # Map model's angles to our arm's configuration
         theta2 = -1 * (theta2 - math.pi / 2)
         theta3 = -1 * (theta3 + math.pi / 2)
 
-        # Adjust for openmanipulator joint 3 additional length
-        theta2 -= 0.155348
-        theta3 += 0.155348
+        # Adjust angles for additional l2 length
+        offset = math.asin(0.024/l2)
+        theta2 -= offset
+        theta3 += offset
 
         return theta1, theta2, theta3
 
