@@ -16,7 +16,7 @@ def inv_kin(x, y, z):
 
         l1 = 0.035 + 0.141              # arm-base + turtlebot height
         l2 = 0.130                      # arm length 
-        l3 = 0.124 + 0.126 - 0.0535     # arm length + gripper - delta
+        l3 = 0.124 + 0.126 - 0.0545     # arm length + gripper - delta
 
         c3 = (x**2 + y**2 + z**2 - (l1**2 + l2**2 + l3**2) - 2 * l1 * (z - l1)) / (2 * l2 * l3)
         s3 = -np.sqrt(1 - c3)
@@ -73,14 +73,30 @@ class Robot(object):
         # Reset arm position
         # self.move_group_arm.go([0,0,0,0], wait=True)
         rospy.sleep(2)
+        
+        #self.move_group_arm.go([0,0,0,0], wait=True)
+        #rospy.sleep(2)
+
+        # Close the gripper
+        gripper_joint_goal = [-0.009, 0.009]
+        self.move_group_gripper.go(gripper_joint_goal, wait=True)
+        self.move_group_gripper.stop()
+        rospy.sleep(1)
+
+        print("intial x,y,z")
+        print("ARM", self.move_group_arm.get_current_pose().pose.position)
 
 
     def writenum(self):
         
         #test
-        t1, t2, t3 = inv_kin(0.194, 0.000, 0.304)
-        arm_joint_goal = [t1, t2, t3, 0]
-        print(arm_joint_goal)
+        t1, t2, t3 = inv_kin(0.000, -0.01, 0.180)
+
+        print(t1)
+        print(t2)
+        print(t3)
+
+        arm_joint_goal = [t1, t2, t3, 0.0]
         self.move_group_arm.go(arm_joint_goal, wait=True)
         self.move_group_arm.stop()
         rospy.sleep(5)
