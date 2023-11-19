@@ -25,8 +25,8 @@ class SegmentService:
         # Subscribe to computer vision node
         self.math_string_sub = rospy.Subscriber("/robot_math/math_strings", String, self.math_string_callback)
 
-        # Load vectorized characters template dictionary
-        with open(dirname(dirname(__file__))+"/resources/vector_font.json") as f:
+        # Load vectorized characters dictionary
+        with open(dirname(dirname(__file__))+"/resources/hershey_font.json") as f:
             self.characters = json.load(f)
 
         # Initialize service queue
