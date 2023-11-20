@@ -14,9 +14,10 @@ CHARACTER_SCALING = 0.002  # Characters set to 0.04m wide
 DIST_TO_BOARD = 0.3
 
 
-class CharacterPathService:
+class CharacterService:
 
     def __init__(self):
+
         rospy.init_node("robot_math_character_path_server")
 
         # Start service
@@ -73,10 +74,6 @@ class CharacterPathService:
                 self.segment_queue.append(char_path)
 
 
-    def run(self):
-        rospy.spin()
-
-
 if __name__ == "__main__":
-    server = CharacterPathService()
-    server.run()
+    server = CharacterService()
+    rospy.spin()
