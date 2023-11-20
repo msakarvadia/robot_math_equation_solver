@@ -75,9 +75,13 @@ class WallCursorService:
     def __init__(self):
         rospy.init_node("robot_math_wall_cursor_server")
         # Start service
-        self.segment_service = rospy.Service("/robot_math/wall_cursor_service", Cursor, self.service_response)
+        self.segment_service = rospy.Service("/robot_math/wall_cursor_service", 
+                                             Cursor, 
+                                             self.service_response)
         # Start cursor locator subscriber
-        self.cursor_locator = rospy.Subscriber("/robot_math/cursor_locator", CursorLocate, self.cursor_locator_callback)
+        self.cursor_locator = rospy.Subscriber("/robot_math/cursor_locator", 
+                                               CursorLocate, 
+                                               self.cursor_locator_callback)
 
         # Cursor data
         self.y_offset = None
@@ -108,17 +112,20 @@ class WallCursorService:
 
     def calc_wall_transformation(self):
         """
-        Method which creates the transformation matrix for mapping 2D characters 
-        onto a vertical wall in front of the robot.
+        Method which estimates the transformation matrix for mapping characters
+        onto a (flat) wall in front of the robot. It first samples the points and
+        then uses RANSAC to estimate the walls location.
         """
 
-        # Estimate wall in robot's coordinate frame using RANSAC
         wall_points = SampleWallPoints.lidar_front()
+
+        # Estimate wall in robot's coordinate frame using RANSAC
         model, _ = ransac(wall_points, 
                           LineModelND, 
                           min_samples=2, 
                           max_trials=100, 
                           residual_threshold=0.1)
+
         origin, direction_vector = model.params
 
         # Initialize transformation matrix
