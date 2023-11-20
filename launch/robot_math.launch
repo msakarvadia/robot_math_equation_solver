@@ -1,0 +1,8 @@
+<launch>
+  <!-- cursor locator node -->
+  <node name="cursor_locator" pkg="robot_math_equation_solver" type="cursor_locator.py" output="screen" />
+  <!-- cursor service node -->
+  <node name="cursor_service" pkg="robot_math_equation_solver" type="cursor_service.py" output="screen" />
+  <!-- character_service node -->
+  <node name="character_service" pkg="robot_math_equation_solver" type="character_service.py" output="screen" />
+</launch>

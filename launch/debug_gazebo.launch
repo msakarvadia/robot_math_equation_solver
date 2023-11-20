@@ -1,5 +1,5 @@
 <launch>
-  <arg name="model" default="$(env  TURTLEBOT3_MODEL)" doc="model type [waffle, waffle_pi]"/>
+  <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [waffle, waffle_pi]"/>
   <arg name="gui" default="true"/>
   <arg name="paused" default="true"/>
   <arg name="use_sim_time" default="true"/>
