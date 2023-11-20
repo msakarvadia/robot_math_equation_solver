@@ -125,11 +125,7 @@ class WallCursorService:
                           min_samples=2, 
                           max_trials=100, 
                           residual_threshold=0.1)
-
         origin, direction_vector = model.params
-
-        # Initialize transformation matrix
-        transform = np.zeros((4, 4))
 
         # Calculate rotation
         theta = math.atan2(-1 * direction_vector[0], direction_vector[1])
@@ -143,7 +139,8 @@ class WallCursorService:
                              / math.sqrt((direction_vector[1] / direction_vector[0])**2 + 1))
         translation = np.array([self.dist_to_wall, 0, 0])
 
-        # Build the matrix
+        # Build and flatten the matrix
+        transform = np.zeros((4, 4))
         transform[:2, :2] = rotation
         transform[:3, 3] = translation
         transform[2, 2] = 1
