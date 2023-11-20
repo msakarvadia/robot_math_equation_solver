@@ -129,6 +129,7 @@ class WallCursorService:
 
 
     def cursor_locator_callback(self, data):
+        # TODO: Get camera angles
         self.angle_to_cursor = data.image_width - data.cursor_loc 
 
 
