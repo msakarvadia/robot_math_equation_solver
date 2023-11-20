@@ -13,6 +13,11 @@ IMAGE_WIDTH = 320
 
 
 class FindCursorTag:
+    """
+    Node that uses OpenCV to track the cursor location used for writing
+    characters onto a wall in front of the robot. The initial writing
+    operation uses a tag to mark where the robot should start writing.
+    """
     
     def __init__(self):
         rospy.init_node("robot_math_wall_cursor_locator")
@@ -31,6 +36,11 @@ class FindCursorTag:
 
 
     def image_callback(self, data):
+        """
+        Callback method which publishes the pixel location and image width of 
+        the recognized cursor tag.
+        """
+
         # Pixel location of tag in image
         loc = -1
 

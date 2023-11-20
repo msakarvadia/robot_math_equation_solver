@@ -15,6 +15,9 @@ DIST_TO_BOARD = 0.3
 
 
 class CharacterService:
+    """
+    A ROS service which 
+    """
 
     def __init__(self):
 

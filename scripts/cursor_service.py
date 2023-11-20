@@ -68,8 +68,8 @@ class WallCursorService:
     location and associated transformation matrix to write 2D character paths onto
     the wall.
 
-    Upon making a "NEXT" request, the service will advance the cursor to the
-    next character and respond with this position.
+    Upon a "NEXT" request, the service will advance the cursor to the next 
+    character and respond with this position and associated matrix.
     """
 
     def __init__(self):
