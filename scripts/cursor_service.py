@@ -17,13 +17,39 @@ START_HEIGHT = 0.19
 CHAR_WIDTH = 0.04
 
 
-def sample_lidar_in_front():
-    scan_data = rospy.wait_for_message("/scan", LaserScan, timeout=1)
-    # Return scan data from +- Pi/2 in front
-    if LIDAR == "LDS":
-        return scan_data.ranges[315:360] + scan_data.ranges[0:46]
-    elif LIDAR == "RP":
-        return scan_data.ranges[430:717]
+class SampleWallPoints:
+
+    # Radians-to-index mappings
+    lds = np.fromfunction(lambda k: k * np.pi / (180), (360,))
+    rp = np.fromfunction(lambda k: ((573.5 + k) % 1147) * np.pi / (573.5), (1147,))
+
+    @classmethod
+    def lidar_front(cls):
+        # Sample a single lidar scan 
+        data = None
+        while data is None:
+            data = rospy.wait_for_message("/scan", LaserScan, timeout=1)
+        ranges = np.array(data.ranges)
+
+        # Adjust for different lidars and only sample from -Pi/4 to Pi/4
+        if LIDAR == "LDS":
+            scan_left = np.array([ranges[i] for i in range(315, 360)])
+            scan_right = np.array([ranges[i] for i in range(0, 46)])
+            scan_data = np.concatenate((scan_left, scan_right), axis=0)
+
+            angles_left = np.array([cls.lds[i] for i in range(315, 360)])
+            angles_right = np.array([cls.lds[i] for i in range(0, 46)])
+            angles = np.concatenate((angles_left, angles_right), axis=0)
+
+        elif LIDAR == "RP":
+            scan_data = np.array([ranges[i] for i in range(430, 717)])
+            angles = np.array([cls.rp[i] for i in range(430, 717)])
+       
+        # Convert to cartesian coordinates and stack into (x. y) points
+        x = np.cos(angles) * scan_data
+        y = np.sin(angles) * scan_data
+
+        return np.column_stack((x, y))
 
 
 class WallCursorService:
@@ -43,7 +69,7 @@ class WallCursorService:
         self.z_offset = START_HEIGHT
         self.transform = []
         self.angle_to_cursor = None
-        self.min_dist_to_wall = None
+        self.dist_to_wall = None
 
         # Cursor reset
         self.cursor_set = False
@@ -57,25 +83,25 @@ class WallCursorService:
         while self.angle_to_cursor is None:
             rate.sleep()
 
-        self.y_offset = math.tan(self.angle_to_cursor) * self.min_dist_to_wall
+        self.y_offset = math.tan(self.angle_to_cursor) * self.dist_to_wall
 
 
     def calc_wall_transformation(self):
 
         # Estimate wall in robot's coordinate frame using a lidar reading
-        wall_lidar_distances = sample_lidar_in_front()
-        print(wall_lidar_distances)
-        model, _ = ransac(wall_lidar_distances, LineModelND, min_samples=2, max_trials=50, residual_threshold=0.1)
-        intercept, line_vector_est = model.params
+        wall_points = SampleWallPoints.lidar_front()
+        model, _ = ransac(wall_points, LineModelND, min_samples=2, max_trials=100, residual_threshold=0.1)
+        origin, direction_vector = model.params
 
         # Initialize transformation matrix and the required values
         transform = np.zeros((4, 4))
-        theta = math.atan2(line_vector_est[1], line_vector_est[0])
-        self.min_dist_to_wall = intercept[1] / math.sqrt((line_vector_est[1] / line_vector_est[0])**2 + 1)
+        theta = math.atan2(-1 * direction_vector[0], direction_vector[1])
+        intercept = (direction_vector[1] / direction_vector[0]) * (-1 * origin[0]) + origin[1] 
+        self.dist_to_wall = abs(intercept) / math.sqrt((direction_vector[1] / direction_vector[0])**2 + 1)
 
         # Calculate rotation and translation
         rotation = np.array([[math.cos(theta), -1 * math.sin(theta)],[math.sin(theta), math.cos(theta)]])
-        translation = np.array([self.min_dist_to_wall, 0, 0])
+        translation = np.array([self.dist_to_wall, 0, 0])
 
         # Build the matrix
         transform[:2, :2] = rotation
