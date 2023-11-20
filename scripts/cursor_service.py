@@ -14,7 +14,7 @@ from robot_math_equation_solver.msg import CursorLocate
 
 LIDAR = "LDS"
 START_HEIGHT = 0.19
-LINE_WIDTH = 0.04
+CHAR_WIDTH = 0.04
 
 
 def sample_lidar_in_front():
@@ -95,7 +95,7 @@ class WallCursorService:
 
         # Handle request 
         if r.request == "NEXT":
-            self.y_offset += LINE_WIDTH
+            self.y_offset += CHAR_WIDTH
 
         return CursorResponse(y_offset=self.y_offset,
                               z_offset=self.z_offset,
