@@ -20,7 +20,7 @@ CHAR_WIDTH = 0.04
 class SampleWallPoints:
     """
     Utility class which samples lidar scans from a given sweep, and converts
-    the data points to cartesian coordinate frame of lidar.
+    the data points to cartesian coordinate frame of the robot.
     """
 
     # Lidar radians-to-index mappings (precomputed)
@@ -65,8 +65,8 @@ class WallCursorService:
     A ROS service which tracks the current location of the "virtual wall cursor".
 
     Upon making a "GET" request, clients will receive the current cursor 
-    location and associated transformation matrix that maps 2D character paths to
-    to wall being written on.
+    location and associated transformation matrix to write 2D character paths onto
+    the wall.
 
     Upon making a "NEXT" request, the service will advance the cursor to the
     next character and respond with this position.
@@ -112,9 +112,9 @@ class WallCursorService:
 
     def calc_wall_transformation(self):
         """
-        Method which estimates the transformation matrix for mapping characters
-        onto a (flat) wall in front of the robot. It first samples the points and
-        then uses RANSAC to estimate the walls location.
+        Method which estimates the transformation matrix for writing characters
+        onto a (flat, vertical) wall in front of the robot. It first samples the 
+        points and then uses RANSAC to estimate the walls location.
         """
 
         wall_points = SampleWallPoints.lidar_front()
