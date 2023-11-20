@@ -119,7 +119,7 @@ class WallCursorService:
 
         wall_points = SampleWallPoints.lidar_front()
 
-        # Estimate wall in robot's coordinate frame using RANSAC
+        # Estimate wall location
         model, _ = ransac(wall_points, 
                           LineModelND, 
                           min_samples=2, 
