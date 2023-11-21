@@ -125,6 +125,7 @@ class WallCursorService:
                           min_samples=2, 
                           max_trials=100, 
                           residual_threshold=0.1)
+
         origin, direction_vector = model.params
 
         # Calculate rotation

@@ -17,7 +17,7 @@ CHARACTER_SCALING = 0.002                   # characters set to 0.04m wide
 PEN_OFFSET = -0.07                          # the pen is about 0.07m long
 PEN_LIFT = {                                # pen lift offsets
     "x": -0.03,
-    "y": 10 * CHARACTER_SCALING, 
+    "y": -1 * 10 * CHARACTER_SCALING, 
     "z": 10 * CHARACTER_SCALING,
 }
 
@@ -74,6 +74,7 @@ class CharacterService:
 
         # Process each character in string
         for char in math_string.data:
+
             # Create 4D base character path
             char_path = self.get_base_path(char)
 
@@ -84,10 +85,13 @@ class CharacterService:
             # Get current cursor location
             cursor = self.advance_cursor_client()
 
+            if cursor is None:
+                continue
+
             # Add the cursor offset and calculate wall transformation
             char_path += np.array([0, cursor.y_offset, cursor.z_offset, 1])
-            projected_points = np.dot(char_path, cursor.transform)
-            projected_points /= projected_points[:,3]  # Normalize points
+            transform = np.array(cursor.transform).reshape(4, 4)
+            projected_points = np.dot(transform, np.transpose(char_path)).transpose()
 
             # Enqueue flattened list of 3D points for inverse kinematics
             self.segment_queue.append(list(projected_points[:,:3].flatten()))
@@ -100,31 +104,31 @@ class CharacterService:
         """
 
         # Initialize new array of points
-        char_path = np.array()
+        char_path = np.empty([])
 
         if self.characters.get(char) is not None:
             # Get flattened 2D character path points array
             flattened_char_2d = self.characters[char][1]
 
             # Initialize 4D point array
-            char_path = np.zeros((len(flattened_char_2d) / 2, 4))
+            char_path = np.zeros((len(flattened_char_2d) // 2, 4))
 
             # Populate the array and scale the movements
             for i, coord in enumerate(flattened_char_2d):
 
                 if i % 2 == 0:
                     if coord == -1:
-                        char_path[i/2][0] = PEN_OFFSET + PEN_LIFT["x"]
-                        char_path[i/2][1] = PEN_LIFT["y"]
+                        char_path[i//2][0] = PEN_OFFSET + PEN_LIFT["x"]
+                        char_path[i//2][1] = PEN_LIFT["y"]
                     else:
-                        char_path[i/2][0] = PEN_OFFSET
-                        char_path[i/2][1] = coord * CHARACTER_SCALING
+                        char_path[i//2][0] = PEN_OFFSET
+                        char_path[i//2][1] = -1 * coord * CHARACTER_SCALING
 
                 else:
                     if coord == -1:
-                        char_path[(i-1)/2][2] = PEN_LIFT["z"]
+                        char_path[(i-1)//2][2] = PEN_LIFT["z"]
                     else:
-                        char_path[(i-1)/2][2] = coord * CHARACTER_SCALING
+                        char_path[(i-1)//2][2] = coord * CHARACTER_SCALING
 
         return char_path
 
