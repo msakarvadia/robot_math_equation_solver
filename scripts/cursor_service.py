@@ -20,7 +20,7 @@ CHAR_WIDTH = 0.04
 class SampleWallPoints:
     """
     Utility class which samples lidar scans from a given sweep, and converts
-    the data points to cartesian coordinate frame of the robot.
+    the data points to cartesian frame of the robot.
     """
 
     # Lidar radians-to-index mappings (precomputed)
