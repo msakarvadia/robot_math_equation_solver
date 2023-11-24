@@ -44,8 +44,9 @@ def equation_from_image(img):
     #hirearchy: hirearchy data of the contours
     #chain_approx_simple will get the endpoints of the lines of the image
     #try chain_approx_none if it doesn't work well and we need the full shape
-    image_binary2, image_contours, hirearchy= cv2.findContours(image_binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    preview_processing('contour preview', image_binary2)
+    image_contours, _ = cv2.findContours(image_binary[1], cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    #image_binary2, image_contours, hirearchy= cv2.findContours(image_binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    #preview_processing('contour preview', image_binary2)
 
     #get bounding boxes and coordinates of box corners
     #takes the image contours and creates bounding boxes for each contour
