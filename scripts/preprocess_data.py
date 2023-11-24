@@ -19,7 +19,7 @@ import pandas as pd
 
 def load_images_from_folder(folder):
     train_data=[]
-    folder = 'train images/'+folder
+    folder = '../train images/'+folder
     for filename in os.listdir(folder):
         img = cv2.imread(os.path.join(folder,filename),cv2.IMREAD_GRAYSCALE)
         img=~img
