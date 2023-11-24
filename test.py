@@ -38,14 +38,30 @@ def equation_from_image(img):
     #thresh_binary_inv used because analyzed equation needs to be white with black bg
     #black whiteboard marker will work best and guarantee the most success
     image_binary= cv2.threshold(image_extract, 150, 255, cv2.THRESH_BINARY_INV)
-    image_extract= image_binary[1]
+    image = image_binary[1]
 
     #get contours
     #image_contours: contour data, each contour is a vector of points
     #hirearchy: hirearchy data of the contours
     #chain_approx_simple will get the endpoints of the lines of the image
     #try chain_approx_none if it doesn't work well and we need the full shape
-    image_contours, _ = cv2.findContours(image_binary[1], cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    image_contours, _ = cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+    idx = 0
+    buffer = 10
+    cropped_images = {}
+    for cntr in image_contours:
+       #contour_curves[idx]= cv2.approxPolyDP(cntr, 3, True)
+       x, y, w, h= cv2.boundingRect(image_contours[idx])
+       image_cropped = image[ y-buffer:y+h+buffer, x-buffer:x+w+buffer]
+       if image_cropped.shape[0] != 0:
+         image_cropped = np.pad(image_cropped, 30)
+         #reshape each image
+         image_cropped = cv2.resize(image_cropped, (28,28))
+         cropped_images[x] = image_cropped
+
+       idx += 1
+
     #image_binary2, image_contours, hirearchy= cv2.findContours(image_binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     #preview_processing('contour preview', image_binary2)
 
@@ -84,12 +100,11 @@ def equation_from_image(img):
             idx += 1
 
     #cv2.resize(img, (28,28))
+    return cropped_images
     
-equation_from_image("test.jpeg")
 
 def do_inference(img_name:str, label:int):
     #currently we will just do inference on an image of a single digit
-    #TODO: we should be able to pass in an image as well and classify it (without a file)
     #test_img = "0_46621.jpg"
     test_img = img_name
     img = cv2.imread(test_img,cv2.IMREAD_GRAYSCALE)
@@ -100,7 +115,7 @@ def do_inference(img_name:str, label:int):
     test_img = torch.from_numpy(im_resize.astype(np.single))
     #needs to be shape (1,1,28,28)
     test_img = test_img[None, None, :,:]
-    #print(test_img.shape)
+    print(test_img.shape)
 
     logits = network(test_img)
     #print("logits: ", logits)
@@ -120,3 +135,61 @@ do_inference("0_46621.jpg", 0)
 do_inference("3_40.jpg", 3)
 
 do_inference("8_362.jpg", 8)
+
+
+def process_and_predict_answer_from_cropped_images(cropped_images:dict):
+#We use these keys to find the correct formatting of images
+    keys = list(cropped_images.keys())
+    keys.sort() 
+    print(keys)
+    s=''
+    for i in keys:
+        image = cropped_images[i]
+        image = image.astype(np.float32)
+        image = torch.from_numpy(image)
+        image = image[None, None, :,:]
+        #print(image.shape)
+        logits = network(image)
+        #print("logits: ", logits)
+        #we used NLL to train network so logit w/ lowest score is prediction
+        result = torch.argmax(logits)
+        result= result.item()
+
+        if(result==10):
+            s=s+'-'
+        if(result==11):
+            s=s+'+'
+        if(result==12):
+            s=s+'*'
+        if(result==0):
+            s=s+'0'
+        if(result==1):
+            s=s+'1'
+        if(result==2):
+            s=s+'2'
+        if(result==3):
+            s=s+'3'
+        if(result==4):
+            s=s+'4'
+        if(result==5):
+            s=s+'5'
+        if(result==6):
+            s=s+'6'
+        if(result==7):
+            s=s+'7'
+        if(result==8):
+            s=s+'8'
+        if(result==9):
+            s=s+'9'
+
+        print("prediction: ", result)
+
+    print("string: ", s)
+    answer = eval(s)
+    print("answer: ", answer)
+    return answer
+
+#This is how we process an image:
+cropped_images = equation_from_image("test.jpeg")
+answer = process_and_predict_answer_from_cropped_images(cropped_images)
+#TODO "answer" is what need to be published to the topics that communicates with the arm
