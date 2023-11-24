@@ -62,10 +62,10 @@ def equation_from_image(img):
 
        idx += 1
 
-    #image_binary2, image_contours, hirearchy= cv2.findContours(image_binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    #preview_processing('contour preview', image_binary2)
-
-    #get bounding boxes and coordinates of box corners
+    #CODE BELOW INVOLVES CHECKING BOUNDING BOXES FOR OVERLAP.
+    #for efficiency, we will not use it and instead try to write as clear as possible
+    #this code would be important, however, if we would later want the process to work on messier writin
+    """#get bounding boxes and coordinates of box corners
     #takes the image contours and creates bounding boxes for each contour
     #contour_curves made to approximate shapes in opencv tutorial
     ##commented out bc might not be needed
@@ -82,7 +82,6 @@ def equation_from_image(img):
     processed_rectangles= []
     idx= 0
     #assumed bounding rectangles recognize the numbers from left to right
-    #CURRENTLY PSEUDOCODE, NEED TO CHECK STRUCTURE OF BOUNDS
     for idx in range(0, len(bounding_coords)-1):
         #if rectangles overlap, compare sizes, send the larger one to processed_rectangle
         #skip over the next rectangle, since it was assessed here and determined to overlap
@@ -91,15 +90,22 @@ def equation_from_image(img):
             or bounding_coords[idx].topright.y < bounding_coords[idx+1].bottomleft.y
             or bounding_coords[idx].bottomleft.y > bounding_coords[idx+1].topright.y):
             
+            x= min(bounding_coords[idx].rectdata[0], bounding_coords[idx+1].rectdata[0])
+            y= max(bounding_coords[idx].rectdata[1], bounding_coords[idx+1].rectdata[1])
+            w= max(bounding_coords[idx].rectdata[2], bounding_coords[idx+1].rectdata[2])
+            h= max(bounding_coords[idx].rectdata[3], bounding_coords[idx+1].rectdata[3])
+
+            processed_rectangles.append(boundCorners(x, y, w, h))
+
             idx += 2
         
         #if the two rectangles don't overlap, set processed rectangle as original
         #second rectangle needs to be checked with the one adjacent to it for overlap
         else:
-            processed_rectangles[idx]= bounding_rectangles[idx]
+            processed_rectangles.append(bounding_rectangles[idx])
             idx += 1
 
-    #cv2.resize(img, (28,28))
+    """
     return cropped_images
     
 
