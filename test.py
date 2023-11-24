@@ -2,7 +2,6 @@ import torch
 import cv2
 from nn import Net
 import numpy as np
-from cv2 import Rect
 
 network = Net()
 PATH = 'results/model.pth'
