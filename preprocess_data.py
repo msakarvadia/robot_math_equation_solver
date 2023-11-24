@@ -5,6 +5,7 @@ Script to preprocess training data.
 Download data from: https://www.kaggle.com/datasets/xainano/handwrittenmathsymbols
 
 Ensure that 'train images' is in same dir as this script.
+Or ensure that you adjust path to "train images" below.
 
 """
 import numpy as np
