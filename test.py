@@ -65,7 +65,6 @@ def equation_from_image(img):
     #check for overlapping rectangles
     processed_rectangles= []
     idx= 0
-    """ #NOTE(MS): I just commented this out so that I can test the rest of the program"""
     #assumed bounding rectangles recognize the numbers from left to right
     #CURRENTLY PSEUDOCODE, NEED TO CHECK STRUCTURE OF BOUNDS
     for idx in range(0, len(bounding_coords)-1):
@@ -75,7 +74,7 @@ def equation_from_image(img):
             or bounding_coords[idx].bottomleft.x > bounding_coords[idx+1].topright.x
             or bounding_coords[idx].topright.y < bounding_coords[idx+1].bottomleft.y
             or bounding_coords[idx].bottomleft.y > bounding_coords[idx+1].topright.y):
-            #TODO: compare size of the rectangles, remove the smaller one
+            
             idx += 2
         
         #if the two rectangles don't overlap, set processed rectangle as original
