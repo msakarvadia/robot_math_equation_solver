@@ -22,6 +22,7 @@ class boundCorners:
         self.topright= Point2D(x+w, y)
         self.bottomleft= Point2D(x, y-h)
         self.bottomright= Point2D(x+w, y-h)
+        self.rectdata= [x, y, w, h]
 
 def preview_processing(name, img):
     #opens window to show contours and bounding rectangles to help debug
@@ -37,30 +38,27 @@ def equation_from_image(img):
     #thresh_binary_inv used because analyzed equation needs to be white with black bg
     #black whiteboard marker will work best and guarantee the most success
     image_binary= cv2.threshold(image_extract, 150, 255, cv2.THRESH_BINARY_INV)
+    image_extract= image_binary[1]
 
     #get contours
-    #image_binary2: image with extracted contours
     #image_contours: contour data, each contour is a vector of points
     #hirearchy: hirearchy data of the contours
     #chain_approx_simple will get the endpoints of the lines of the image
     #try chain_approx_none if it doesn't work well and we need the full shape
-    image_binary2, image_contours, hirearchy= cv2.findContours(image_binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    preview_processing('contour preview', image_binary2)
+    image_contours, _= cv2.findContours(image_extract, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    preview_processing('contour preview', image_extract)
 
     #get bounding boxes and coordinates of box corners
     #takes the image contours and creates bounding boxes for each contour
     #contour_curves made to approximate shapes in opencv tutorial
     ##commented out bc might not be needed
     idx= 0
-    #contour_curves= []
-    bounding_rectangles= []
     bounding_coords= []
     for cntr in image_contours:
         #contour_curves[idx]= cv2.approxPolyDP(cntr, 3, True)
         x, y, w, h= cv2.boundingRect(image_contours[idx])
         #(x, y) is the top left coordinate of the bounding rectagle
-        bounding_rectangles[idx]= Rect(x, y, w, h)
-        bounding_coords[idx]= boundCorners(x, y, w, h)
+        bounding_coords.append(boundCorners(x, y, w, h))
         idx += 1
 
     #check for overlapping rectangles
@@ -69,7 +67,7 @@ def equation_from_image(img):
     """ #NOTE(MS): I just commented this out so that I can test the rest of the program"""
     #assumed bounding rectangles recognize the numbers from left to right
     #CURRENTLY PSEUDOCODE, NEED TO CHECK STRUCTURE OF BOUNDS
-    for idx in range(0, bounding_rectangles.len()-1):
+    for idx in range(0, len(bounding_coords)-1):
         #if rectangles overlap, compare sizes, send the larger one to processed_rectangle
         #skip over the next rectangle, since it was assessed here and determined to overlap
         if (bounding_coords[idx].topright.x < bounding_coords[idx+1].bottomleft.x
@@ -85,7 +83,7 @@ def equation_from_image(img):
             processed_rectangles[idx]= bounding_rectangles[idx]
             idx += 1
 
-    cv2.resize(img, (28,28))
+    #cv2.resize(img, (28,28))
     
 equation_from_image("test.jpeg")
 
