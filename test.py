@@ -106,7 +106,6 @@ def equation_from_image(img):
 
 def do_inference(img_name:str, label:int):
     #currently we will just do inference on an image of a single digit
-    #TODO: we should be able to pass in an image as well and classify it (without a file)
     #test_img = "0_46621.jpg"
     test_img = img_name
     img = cv2.imread(test_img,cv2.IMREAD_GRAYSCALE)
@@ -187,8 +186,11 @@ def process_and_predict_answer_from_cropped_images(cropped_images:dict):
         print("prediction: ", result)
 
     print("string: ", s)
-    print("answer: ", eval(s))
+    answer = eval(s)
+    print("answer: ", answer)
+    return answer
 
 #This is how we process an image:
 cropped_images = equation_from_image("test.jpeg")
-process_and_predict_answer_from_cropped_images(cropped_images)
+answer = process_and_predict_answer_from_cropped_images(cropped_images)
+#TODO "answer" is what need to be published to the topics that communicates with the arm
