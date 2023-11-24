@@ -49,7 +49,7 @@ def equation_from_image(img):
 
     idx = 0
     buffer = 10
-    cropped_images = []
+    cropped_images = {}
     for cntr in image_contours:
        #contour_curves[idx]= cv2.approxPolyDP(cntr, 3, True)
        x, y, w, h= cv2.boundingRect(image_contours[idx])
@@ -58,7 +58,7 @@ def equation_from_image(img):
          image_cropped = np.pad(image_cropped, 30)
          #reshape each image
          image_cropped = cv2.resize(image_cropped, (28,28))
-         cropped_images.append(image_cropped)
+         cropped_images[x] = image_cropped
 
        idx += 1
 
@@ -138,14 +138,57 @@ do_inference("3_40.jpg", 3)
 
 do_inference("8_362.jpg", 8)
 
+
+def process_and_predict_answer_from_cropped_images(cropped_images:dict):
+#We use these keys to find the correct formatting of images
+    keys = list(cropped_images.keys())
+    keys.sort() 
+    print(keys)
+    s=''
+    for i in keys:
+        image = cropped_images[i]
+        image = image.astype(np.float32)
+        image = torch.from_numpy(image)
+        image = image[None, None, :,:]
+        #print(image.shape)
+        logits = network(image)
+        #print("logits: ", logits)
+        #we used NLL to train network so logit w/ lowest score is prediction
+        result = torch.argmax(logits)
+        result= result.item()
+
+        if(result==10):
+            s=s+'-'
+        if(result==11):
+            s=s+'+'
+        if(result==12):
+            s=s+'*'
+        if(result==0):
+            s=s+'0'
+        if(result==1):
+            s=s+'1'
+        if(result==2):
+            s=s+'2'
+        if(result==3):
+            s=s+'3'
+        if(result==4):
+            s=s+'4'
+        if(result==5):
+            s=s+'5'
+        if(result==6):
+            s=s+'6'
+        if(result==7):
+            s=s+'7'
+        if(result==8):
+            s=s+'8'
+        if(result==9):
+            s=s+'9'
+
+        print("prediction: ", result)
+
+    print("string: ", s)
+    print("answer: ", eval(s))
+
+#This is how we process an image:
 cropped_images = equation_from_image("test.jpeg")
-for image in cropped_images:
-    image = image.astype(np.float32)
-    image = torch.from_numpy(image)
-    image = image[None, None, :,:]
-    print(image.shape)
-    logits = network(image)
-    #print("logits: ", logits)
-    #we used NLL to train network so logit w/ lowest score is prediction
-    prediction = torch.argmax(logits)
-    print("prediction: ", prediction)
+process_and_predict_answer_from_cropped_images(cropped_images)
