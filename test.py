@@ -88,10 +88,11 @@ def equation_from_image(img):
 
     cv2.resize(img, (28,28))
     
-#equation_from_image("test.jpeg")
+equation_from_image("test.jpeg")
 
 def do_inference(img_name:str, label:int):
-#currently we will just do inference on an image of a single digit
+    #currently we will just do inference on an image of a single digit
+    #TODO: we should be able to pass in an image as well and classify it (without a file)
     #test_img = "0_46621.jpg"
     test_img = img_name
     img = cv2.imread(test_img,cv2.IMREAD_GRAYSCALE)
