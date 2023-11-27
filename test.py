@@ -3,6 +3,12 @@ import cv2
 from nn import Net
 import numpy as np
 
+import cv_bridge
+import rospy
+from sensor_msgs.msg import Image
+
+#import camra.py
+
 network = Net()
 PATH = 'results/model.pth'
 network.load_state_dict(torch.load(PATH))
@@ -10,6 +16,7 @@ network.eval()
 
 #need to use CV2 to break test.jpeg into smaller images based on 
 #individal digits bounding boxes
+    
 
 class Point2D:
     def __init__(self, x, y):
@@ -195,7 +202,24 @@ def process_and_predict_answer_from_cropped_images(cropped_images:dict):
     print("answer: ", answer)
     return answer
 
+
+#defining node for receiving images from ros camera
+def img_callback(msg):
+    # converts the incoming ROS message to OpenCV format and HSV 
+    img= bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+    hsv_img= cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+
+    cropped_images = equation_from_image(hsv_img)
+    answer = process_and_predict_answer_from_cropped_images(cropped_images)
+
+rospy.init_node('receive_image_from_cam')
+rospy.Subscriber('camera/rgb/image_raw', Image, img_callback)
+
+rospy.spin()
+
 #This is how we process an image:
-cropped_images = equation_from_image("test.jpeg")
-answer = process_and_predict_answer_from_cropped_images(cropped_images)
+#cropped_images = equation_from_image("test.jpeg")
+#answer = process_and_predict_answer_from_cropped_images(cropped_images)
+
+
 #TODO "answer" is what need to be published to the topics that communicates with the arm
