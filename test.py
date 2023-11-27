@@ -203,14 +203,24 @@ def process_and_predict_answer_from_cropped_images(cropped_images:dict):
     return answer
 
 
+def check_equation(eq):
+    print("\n is the equation correct?\n")
+    print(eq)
+    equation= input("\n press y if so, otherwise input the correct equation with no spaces: \n")
+    return equation
+
 #defining node for receiving images from ros camera
 def img_callback(msg):
     # converts the incoming ROS message to OpenCV format and HSV 
     img= bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
     hsv_img= cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
+    #cropped_images = equation_from_image("test.jpeg")
+    ##TODO: check cropped_images type
     cropped_images = equation_from_image(hsv_img)
+    cropped_images= check_equation(cropped_images)
     answer = process_and_predict_answer_from_cropped_images(cropped_images)
+
 
 rospy.init_node('receive_image_from_cam')
 rospy.Subscriber('camera/rgb/image_raw', Image, img_callback)
