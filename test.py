@@ -198,6 +198,7 @@ def process_and_predict_answer_from_cropped_images(cropped_images:dict):
         print("prediction: ", result)
 
     print("string: ", s)
+    s= check_equation(s)
     answer = eval(s)
     print("answer: ", answer)
     return answer
@@ -205,11 +206,14 @@ def process_and_predict_answer_from_cropped_images(cropped_images:dict):
 
 def check_equation(eq):
     print("\n is the equation correct?\n")
-    print(eq)
-    equation= input("\n press y if so, otherwise input the correct equation with no spaces: \n")
-    return equation
+    resp= input("\n press y if so, otherwise input the correct equation with no spaces: \n")
 
-#defining node for receiving images from ros camera
+    if resp != "y":
+        eq= resp
+
+    return eq
+
+"""#defining node for receiving images from ros camera
 def img_callback(msg):
     # converts the incoming ROS message to OpenCV format and HSV 
     img= bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
@@ -218,18 +222,17 @@ def img_callback(msg):
     #cropped_images = equation_from_image("test.jpeg")
     ##TODO: check cropped_images type
     cropped_images = equation_from_image(hsv_img)
-    cropped_images= check_equation(cropped_images)
     answer = process_and_predict_answer_from_cropped_images(cropped_images)
 
 
 rospy.init_node('receive_image_from_cam')
 rospy.Subscriber('camera/rgb/image_raw', Image, img_callback)
 
-rospy.spin()
+rospy.spin()"""
 
 #This is how we process an image:
-#cropped_images = equation_from_image("test.jpeg")
-#answer = process_and_predict_answer_from_cropped_images(cropped_images)
+cropped_images = equation_from_image("test.jpeg")
+answer = process_and_predict_answer_from_cropped_images(cropped_images)
 
 
 #TODO "answer" is what need to be published to the topics that communicates with the arm
