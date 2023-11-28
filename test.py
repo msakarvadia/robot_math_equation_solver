@@ -213,7 +213,7 @@ def check_equation(eq):
 
     return eq
 
-"""#defining node for receiving images from ros camera
+#defining node for receiving images from ros camera
 def img_callback(msg):
     # converts the incoming ROS message to OpenCV format and HSV 
     img= bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
@@ -228,11 +228,11 @@ def img_callback(msg):
 rospy.init_node('receive_image_from_cam')
 rospy.Subscriber('camera/rgb/image_raw', Image, img_callback)
 
-rospy.spin()"""
+rospy.spin()
 
-#This is how we process an image:
+"""#This is how we process an image:
 cropped_images = equation_from_image("test.jpeg")
-answer = process_and_predict_answer_from_cropped_images(cropped_images)
+answer = process_and_predict_answer_from_cropped_images(cropped_images)"""
 
 
 #TODO "answer" is what need to be published to the topics that communicates with the arm
