@@ -14,6 +14,9 @@ from sensor_msgs.msg import Image
 import sympy as sp
 from sympy.solvers import solve
 
+from robot_math_equation_solver.srv import CharacterPath
+
+
 def inv_kin(x, y, z):
 
         # Set lengths
@@ -85,17 +88,11 @@ def inv_kin_4d (x, y, z):
     return theta1, theta2, theta3, theta4
 
 
-
-
-
 class Robot(object):
 
     def __init__(self):
         # initialize this node
         rospy.init_node('move_robot')
-
-        # initalize the debugging window
-        # cv2.namedWindow("window", 1)
 
         lin = Vector3()
         ang = Vector3()
@@ -103,15 +100,6 @@ class Robot(object):
 
         # Define twist publisher to help the robot move
         self.cmdpublisher = rospy.Publisher('/cmd_vel', Twist, queue_size = 10)
-
-        # subscribe to the robot's RGB camera data stream
-        # self.image_sub = rospy.Subscriber('camera/rgb/image_raw', Image, self.image_callback)
-
-        # self.bridge = cv_bridge.CvBridge()
-
-        # subscribe to the lidar scan from the robot
-        # self.scan = LaserScan()
-        # rospy.Subscriber("/scan", LaserScan, self.get_scan)
 
         # the interface to the group of joints making up the turtlebot3
         # openmanipulator arm
@@ -121,12 +109,7 @@ class Robot(object):
         # openmanipulator gripper
         self.move_group_gripper = moveit_commander.MoveGroupCommander("gripper")
 
-        # Reset arm position
-        # self.move_group_arm.go([0,0,0,0], wait=True)
-        rospy.sleep(2)
-        
-        #self.move_group_arm.go([0,0,0,0], wait=True)
-        #rospy.sleep(2)
+        self.path_client = rospy.ServiceProxy("/robot_math/character_path_service", CharacterPath)
 
         # Close the gripper
         gripper_joint_goal = [-0.009, 0.009]
@@ -134,53 +117,31 @@ class Robot(object):
         self.move_group_gripper.stop()
         rospy.sleep(1)
 
-        print("intial x,y,z")
-        print("ARM", self.move_group_arm.get_current_pose().pose.position)
-
 
     def writenum(self):
-        
-        #test
-        t1, t2, t3 = inv_kin(0.194, 0.000, 0.304)
 
-        print(t1)
-        print(t2)
-        print(t3)
+        # try:
+        #     path_resp = self.path_client(request=True)
+        #     flattened_3D_array = path_resp.point_path
+        #     points = np.array(flattened_3D_array).reshape(len(flattened_3D_array) // 3, 3)
+        #     print(points)
+        
+        #     for point in points:
+        #         arm_joint_goal = [point[0], point[1], point[2], 0.0]
+        #         self.move_group_arm.go(arm_joint_goal, wait=True)
+        #         self.move_group_arm.stop()
+        #         rospy.sleep(5)
+
+        # except rospy.ServiceException as e:
+        #     print("Service call failed: %s"%e)
+
+        t1, t2, t3 = inv_kin(0.15, 0.15, 0.204)
+        # t1, t2, t3 = inv_kin(0.194, 0.000, 0.304)
 
         arm_joint_goal = [t1, t2, t3, 0.0]
         self.move_group_arm.go(arm_joint_goal, wait=True)
         self.move_group_arm.stop()
         rospy.sleep(5)
-
-        t1, t2, t3 = inv_kin(0.194, -0.020, 0.304)
-
-        arm_joint_goal = [t1, t2, t3, 0]
-        self.move_group_arm.go(arm_joint_goal, wait=True)
-        self.move_group_arm.stop()
-        rospy.sleep(5)
-
-        t1, t2, t3 = inv_kin(0.194, -0.020, 0.264)
-
-        arm_joint_goal = [t1, t2, t3, 0]
-        self.move_group_arm.go(arm_joint_goal, wait=True)
-        self.move_group_arm.stop()
-        rospy.sleep(5)
-
-        t1, t2, t3 = inv_kin(0.194, 0.0, 0.264)
-
-        arm_joint_goal = [t1, t2, t3, 0]
-        self.move_group_arm.go(arm_joint_goal, wait=True)
-        self.move_group_arm.stop()
-        rospy.sleep(5)
-
-        t1, t2, t3 = inv_kin(0.194, 0.0, 0.304)
-
-        arm_joint_goal = [t1, t2, t3, 0]
-        self.move_group_arm.go(arm_joint_goal, wait=True)
-        self.move_group_arm.stop()
-        rospy.sleep(5)
-
-
 
 
     def run(self):

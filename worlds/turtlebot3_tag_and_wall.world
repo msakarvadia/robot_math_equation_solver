@@ -87,8 +87,8 @@
       <heading_deg>0</heading_deg>
     </spherical_coordinates>
     <model name='robot_tag_1'>
-      <pose>-1.5 -1.0 0.1 0 -0 0</pose>
-      <static>0</static>
+      <pose>-0.7 -1.0 0.1 0 -0 0</pose>
+      <static>1</static>
       <link name='link'>
         <inertial>
           <mass>50.0</mass>
@@ -126,7 +126,7 @@
         <collision name='Wall_10_Collision'>
           <geometry>
             <box>
-              <size>4.75 0.15 .5</size>
+              <size>10 0.01 .5</size>
             </box>
           </geometry>
           <pose>0 0 .25 0 -0 0</pose>
@@ -135,7 +135,7 @@
           <pose>0 0 .25 0 -0 0</pose>
           <geometry>
             <box>
-              <size>4.75 0.15 .5</size>
+              <size>10 0.01 .5</size>
             </box>
           </geometry>
           <material>
@@ -169,20 +169,20 @@
         </link>
       </model>
       <model name='robot_tag_1'>
-        <pose>-1.5 -1 0.1 0 -0 0</pose>
+        <pose>-0.6 -1 0.1 0 -0 0</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose>-3 -1 0.1 0 -0 0</pose>
+          <pose>-3 -1 0.15 0 -0 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='the_wall'>
-        <pose>-0.7975 -1.15 0 0 -0 0</pose>
+        <pose>-0.7975 -1.0 0 0 -0 0</pose>
         <scale>1 1 1</scale>
         <link name='Wall_10'>
-          <pose>-3 -0 0 0 -0 -1.5708</pose>
+          <pose>-3.005 -0 0 0 -0 -1.5708</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>

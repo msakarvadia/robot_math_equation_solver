@@ -12,10 +12,14 @@ from robot_math_equation_solver.srv import Cursor, CursorResponse
 from robot_math_equation_solver.msg import CursorLocate
 
 
+# Set lidar model
 LIDAR = "LDS"
-START_HEIGHT = 0.19
+# Set height of cursor and character width
+START_HEIGHT = 0.25
 CHAR_WIDTH = 0.04
-
+# Set hand-eye calibration for manipulator-camera operation
+CAMERA_ANGLE_L = 0.2792
+CAMERA_ANGLE_R = -0.1919
 
 class SampleWallPoints:
     """
@@ -117,14 +121,17 @@ class WallCursorService:
         points and then uses RANSAC to estimate the walls location.
         """
 
-        wall_points = SampleWallPoints.lidar_front()
+        # Draw 5 lidar scans to use in estimation
+        wall_points = np.empty([1,2]) 
+        for _ in range(5):
+            wall_points = np.concatenate((wall_points, SampleWallPoints.lidar_front()))
 
         # Estimate wall location
         model, _ = ransac(wall_points, 
                           LineModelND, 
-                          min_samples=2, 
-                          max_trials=100, 
-                          residual_threshold=0.1)
+                          min_samples=2,
+                          max_trials=500,
+                          residual_threshold=0.25)
 
         origin, direction_vector = model.params
 
@@ -134,10 +141,8 @@ class WallCursorService:
                              [math.sin(theta), math.cos(theta)]])
 
         # Calculate translation
-        intercept = ((direction_vector[1] / direction_vector[0]) 
-                     * (-1 * origin[0]) + origin[1])
-        self.dist_to_wall = (abs(intercept) 
-                             / math.sqrt((direction_vector[1] / direction_vector[0])**2 + 1))
+        c = ((direction_vector[1] / direction_vector[0]) * (-1 * origin[0]) + origin[1])
+        self.dist_to_wall = (abs(c) / math.sqrt((direction_vector[1] / direction_vector[0])**2 + 1))
         translation = np.array([self.dist_to_wall, 0, 0])
 
         # Build and flatten the matrix
@@ -175,8 +180,11 @@ class WallCursorService:
         computer vision node tracking it.
         """
 
-        # TODO: Get camera field of view angles
-        self.angle_to_cursor = img.image_width - img.cursor_loc 
+        # Calculate hand-eye angle mapping
+        angle_from_left_edge = ((abs(CAMERA_ANGLE_L) + abs(CAMERA_ANGLE_R)) 
+                                * img.cursor_loc / img.image_width)
+        if angle_from_left_edge != 0:
+            self.angle_to_cursor = CAMERA_ANGLE_L - angle_from_left_edge
 
 
 if __name__ == "__main__":
