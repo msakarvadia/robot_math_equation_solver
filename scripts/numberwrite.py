@@ -125,7 +125,7 @@ class Robot(object):
         #rospy.sleep(2)
 
         # Close the gripper
-        gripper_joint_goal = [-0.009, 0.009]
+        gripper_joint_goal = [-0.01, 0.01]
         self.move_group_gripper.go(gripper_joint_goal, wait=True)
         self.move_group_gripper.stop()
         rospy.sleep(1)
@@ -148,21 +148,21 @@ class Robot(object):
         self.move_group_arm.stop()
         rospy.sleep(5)
 
-        t1, t2, t3 = inv_kin(0.194, -0.020, 0.304)
+        t1, t2, t3 = inv_kin(0.194, -0.010, 0.304)
 
         arm_joint_goal = [t1, t2, t3, 0]
         self.move_group_arm.go(arm_joint_goal, wait=True)
         self.move_group_arm.stop()
         rospy.sleep(5)
 
-        t1, t2, t3 = inv_kin(0.194, -0.020, 0.264)
+        t1, t2, t3 = inv_kin(0.2, -0.010, 0.279)
 
         arm_joint_goal = [t1, t2, t3, 0]
         self.move_group_arm.go(arm_joint_goal, wait=True)
         self.move_group_arm.stop()
         rospy.sleep(5)
 
-        t1, t2, t3 = inv_kin(0.194, 0.0, 0.264)
+        t1, t2, t3 = inv_kin(0.2, 0.0, 0.279)
 
         arm_joint_goal = [t1, t2, t3, 0]
         self.move_group_arm.go(arm_joint_goal, wait=True)
