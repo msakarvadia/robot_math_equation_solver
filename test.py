@@ -220,13 +220,13 @@ def img_callback(msg):
     hsv_img= cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
     #cropped_images = equation_from_image("test.jpeg")
-    ##TODO: check cropped_images type
     cropped_images = equation_from_image(hsv_img)
     answer = process_and_predict_answer_from_cropped_images(cropped_images)
 
 
 rospy.init_node('receive_image_from_cam')
 rospy.Subscriber('camera/rgb/image_raw', Image, img_callback)
+#rospy.Publisher('/robot_math/character_path_service', answer, queue_size= 10)
 
 rospy.spin()
 
