@@ -1,0 +1,4 @@
+bool request
+---
+float32[] point_path
+int32 dim
