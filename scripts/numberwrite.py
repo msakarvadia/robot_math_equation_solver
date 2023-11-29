@@ -119,8 +119,6 @@ class Robot(object):
 
 
     def writenum(self):
-
-<<<<<<< HEAD
         t1, t2, t3 = inv_kin(0.194, -0.010, 0.304)
 
         arm_joint_goal = [t1, t2, t3, 0]
@@ -136,7 +134,6 @@ class Robot(object):
         rospy.sleep(5)
 
         t1, t2, t3 = inv_kin(0.2, 0.0, 0.279)
-=======
         # try:
         #     path_resp = self.path_client(request=True)
         #     flattened_3D_array = path_resp.point_path
@@ -148,7 +145,6 @@ class Robot(object):
         #         self.move_group_arm.go(arm_joint_goal, wait=True)
         #         self.move_group_arm.stop()
         #         rospy.sleep(5)
->>>>>>> 06b0a3ce6684e82ece519a12e49e7ea59c16c23e
 
         # except rospy.ServiceException as e:
         #     print("Service call failed: %s"%e)
