@@ -34,17 +34,21 @@ class boundCorners:
 def preview_processing(name, img):
     #opens window to show contours and bounding rectangles to help debug
     cv2.imshow(name, img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows() # destroy all windows
 
 def equation_from_image(img):
     #get image binary. first convert image to grayscale.
     #blur image a little to help get rid of noise
     image_extract= cv2.imread(img, cv2.IMREAD_GRAYSCALE)
-    image_extract= cv2.blur(image_extract, (5, 5)) #modify kernel value if needed
+    image_extract= cv2.medianBlur(image_extract, 7)
+    image_extract= cv2.bilateralFilter(image_extract,9,75,75)
+    image_extract= cv2.blur(image_extract, (10, 10)) #modify kernel value if needed
 
     #modify second variable if binarized image has too much noise from whiteboard
     #thresh_binary_inv used because analyzed equation needs to be white with black bg
     #black whiteboard marker will work best and guarantee the most success
-    image_binary= cv2.threshold(image_extract, 150, 255, cv2.THRESH_BINARY_INV)
+    image_binary= cv2.threshold(image_extract, 80, 255, cv2.THRESH_BINARY_INV)
     image = image_binary[1]
 
     #get contours
@@ -61,8 +65,9 @@ def equation_from_image(img):
        #contour_curves[idx]= cv2.approxPolyDP(cntr, 3, True)
        x, y, w, h= cv2.boundingRect(image_contours[idx])
        image_cropped = image[ y-buffer:y+h+buffer, x-buffer:x+w+buffer]
-       if image_cropped.shape[0] != 0:
+       if image_cropped.shape[0] != 0 and (image_cropped.shape[0]>= 200 or image_cropped.shape[1]>= 200):
          image_cropped = np.pad(image_cropped, 30)
+         preview_processing("check the image", image_cropped)
          #reshape each image
          image_cropped = cv2.resize(image_cropped, (28,28))
          cropped_images[x] = image_cropped
@@ -213,7 +218,7 @@ def check_equation(eq):
 
     return eq
 
-#defining node for receiving images from ros camera
+"""#defining node for receiving images from ros camera
 def img_callback(msg):
     # converts the incoming ROS message to OpenCV format and HSV 
     img= bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
@@ -228,11 +233,15 @@ rospy.init_node('receive_image_from_cam')
 rospy.Subscriber('camera/rgb/image_raw', Image, img_callback)
 #rospy.Publisher('/robot_math/character_path_service', answer, queue_size= 10)
 
-rospy.spin()
+rospy.spin()"""
 
-"""#This is how we process an image:
-cropped_images = equation_from_image("test.jpeg")
-answer = process_and_predict_answer_from_cropped_images(cropped_images)"""
+#This is how we process an image:
+cropped_images = equation_from_image("IMG_1687.jpg")
+answer = process_and_predict_answer_from_cropped_images(cropped_images)
+
+#cropped_images = equation_from_image("IMG_1686.jpg")
+#answer = process_and_predict_answer_from_cropped_images(cropped_images)
+
 
 
 #TODO "answer" is what need to be published to the topics that communicates with the arm
