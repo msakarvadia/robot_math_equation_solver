@@ -65,7 +65,7 @@ def equation_from_image(img):
        #contour_curves[idx]= cv2.approxPolyDP(cntr, 3, True)
        x, y, w, h= cv2.boundingRect(image_contours[idx])
        image_cropped = image[ y-buffer:y+h+buffer, x-buffer:x+w+buffer]
-       if image_cropped.shape[0] != 0 and (image_cropped.shape[0]>= 200 or image_cropped.shape[1]>= 200):
+       if image_cropped.shape[0] != 0 and (image_cropped.shape[0]>= 240 or image_cropped.shape[1]>= 240):
          image_cropped = np.pad(image_cropped, 30)
          preview_processing("check the image", image_cropped)
          #reshape each image
@@ -236,11 +236,11 @@ rospy.Subscriber('camera/rgb/image_raw', Image, img_callback)
 rospy.spin()"""
 
 #This is how we process an image:
-cropped_images = equation_from_image("IMG_1687.jpg")
-answer = process_and_predict_answer_from_cropped_images(cropped_images)
-
-#cropped_images = equation_from_image("IMG_1686.jpg")
+#cropped_images = equation_from_image("IMG_1687.jpg")
 #answer = process_and_predict_answer_from_cropped_images(cropped_images)
+
+cropped_images = equation_from_image("IMG_1686.jpg")
+answer = process_and_predict_answer_from_cropped_images(cropped_images)
 
 
 
