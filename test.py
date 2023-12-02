@@ -61,16 +61,18 @@ def equation_from_image(img):
     idx = 0
     buffer = 10
     cropped_images = {}
+    bounding_coords= []
     for cntr in image_contours:
        #contour_curves[idx]= cv2.approxPolyDP(cntr, 3, True)
        x, y, w, h= cv2.boundingRect(image_contours[idx])
        image_cropped = image[ y-buffer:y+h+buffer, x-buffer:x+w+buffer]
-       if image_cropped.shape[0] != 0 and (image_cropped.shape[0]>= 240 or image_cropped.shape[1]>= 240):
-         image_cropped = np.pad(image_cropped, 30)
-         preview_processing("check the image", image_cropped)
-         #reshape each image
-         image_cropped = cv2.resize(image_cropped, (28,28))
-         cropped_images[x] = image_cropped
+       if image_cropped.shape[0] != 0 and (image_cropped.shape[0]>= 350 or image_cropped.shape[1]>= 350):
+        bounding_coords.append(boundCorners(x, y, w, h))
+        image_cropped = np.pad(image_cropped, 30)
+        preview_processing("check the image", image_cropped)
+        #reshape each image
+        image_cropped = cv2.resize(image_cropped, (28,28))
+        cropped_images[x] = image_cropped
 
        idx += 1
 
@@ -81,17 +83,7 @@ def equation_from_image(img):
     #takes the image contours and creates bounding boxes for each contour
     #contour_curves made to approximate shapes in opencv tutorial
     ##commented out bc might not be needed
-    idx= 0
-    bounding_coords= []
-    for cntr in image_contours:
-        #contour_curves[idx]= cv2.approxPolyDP(cntr, 3, True)
-        x, y, w, h= cv2.boundingRect(image_contours[idx])
-        #(x, y) is the top left coordinate of the bounding rectagle
-        bounding_coords.append(boundCorners(x, y, w, h))
-        idx += 1
-
-    #check for overlapping rectangles
-    processed_rectangles= []
+    distinct_images= []
     idx= 0
     #assumed bounding rectangles recognize the numbers from left to right
     for idx in range(0, len(bounding_coords)-1):
@@ -102,21 +94,16 @@ def equation_from_image(img):
             or bounding_coords[idx].topright.y < bounding_coords[idx+1].bottomleft.y
             or bounding_coords[idx].bottomleft.y > bounding_coords[idx+1].topright.y):
             
-            x= min(bounding_coords[idx].rectdata[0], bounding_coords[idx+1].rectdata[0])
-            y= max(bounding_coords[idx].rectdata[1], bounding_coords[idx+1].rectdata[1])
-            w= max(bounding_coords[idx].rectdata[2], bounding_coords[idx+1].rectdata[2])
-            h= max(bounding_coords[idx].rectdata[3], bounding_coords[idx+1].rectdata[3])
-
-            processed_rectangles.append(boundCorners(x, y, w, h))
+            img= max(cropped_images[idx].shape[0]*cropped_images[idx].shape[1], cropped_images[idx+1].shape[0]*cropped_images[idx+1].shape[1])
+            distinct_images.append(img)
 
             idx += 2
         
         #if the two rectangles don't overlap, set processed rectangle as original
         #second rectangle needs to be checked with the one adjacent to it for overlap
         else:
-            processed_rectangles.append(bounding_rectangles[idx])
+            distinct_images.append(cropped_images[idx])
             idx += 1
-
     """
     return cropped_images
     
@@ -235,12 +222,15 @@ rospy.Subscriber('camera/rgb/image_raw', Image, img_callback)
 
 rospy.spin()"""
 
-#This is how we process an image:
-#cropped_images = equation_from_image("IMG_1687.jpg")
-#answer = process_and_predict_answer_from_cropped_images(cropped_images)
-
+"""#processing test images
 cropped_images = equation_from_image("IMG_1686.jpg")
 answer = process_and_predict_answer_from_cropped_images(cropped_images)
+
+cropped_images = equation_from_image("IMG_1687.jpg")
+answer = process_and_predict_answer_from_cropped_images(cropped_images)
+
+cropped_images = equation_from_image("IMG_1688.jpeg")
+answer = process_and_predict_answer_from_cropped_images(cropped_images)"""
 
 
 
