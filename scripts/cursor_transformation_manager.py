@@ -40,10 +40,10 @@ class CursorWallTransformation:
     def __init__(self):
         rospy.init_node("robot_math_wall_cursor_server")
 
-        # Start service
+        # Start the service
         self.segment_service = rospy.Service("/robot_math/wall_cursor_service", Cursor, self.service_response)
 
-        # Start cursor locator subscriber
+        # Start cursor position subscriber
         self.cursor_locator = rospy.Subscriber("/robot_math/cursor_position", CursorLocate, self.cursor_position_callback)
 
         # Cursor data
@@ -148,7 +148,7 @@ class CursorWallTransformation:
         self.transform = transform.flatten()
 
 
-    def cursor_position_callback(self, img):
+    def cursor_position_callback(self, cursor):
         """
         Callback method which updates the angle to the cursor based on the
         computer vision node tracking it.
@@ -159,7 +159,7 @@ class CursorWallTransformation:
             self.angle_to_cursor = 0.25
         else:
             angle_from_left_edge = ((abs(CAMERA_ANGLE_L) + abs(CAMERA_ANGLE_R)) 
-                                    * img.cursor_loc / img.image_width)
+                                    * cursor.cursor_loc / cursor.image_width)
             if angle_from_left_edge != 0:
                 self.angle_to_cursor = CAMERA_ANGLE_L - angle_from_left_edge
 

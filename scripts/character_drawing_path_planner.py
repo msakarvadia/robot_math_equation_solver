@@ -91,17 +91,15 @@ class CharacterPathGenerator:
     def __init__(self):
         rospy.init_node("robot_math_character_path_server")
 
-        # Start service
-        self.segment_service = rospy.Service("/robot_math/character_path_service", 
-                                             CharacterPath, 
-                                             self.service_response)
+        # Start the service
+        self.segment_service = rospy.Service("/robot_math/character_path_service", CharacterPath, self.service_response)
 
-        # Subscribe to computer vision node and cursor service
-        self.math_string_sub = rospy.Subscriber("/robot_math/math_strings", 
-                                                String, 
-                                                self.math_string_callback)
-        self.advance_cursor = rospy.ServiceProxy("/robot_math/wall_cursor_service", 
-                                                 Cursor)
+        # Start math string subscriber service
+        self.math_string_sub = rospy.Subscriber("/robot_math/math_strings", String, self.math_string_callback)
+
+        # Start cursor service proxy
+        rospy.wait_for_service("/robot_math/wall_cursor_service")
+        self.advance_cursor = rospy.ServiceProxy("/robot_math/wall_cursor_service", Cursor)
 
         # Load vectorized characters dictionary
         with open(dirname(dirname(__file__))+"/resources/hershey_font.json") as f:
@@ -198,8 +196,6 @@ class CharacterPathGenerator:
         retrieves its updated location along with the associated transformation 
         matrix.
         """
-
-        rospy.wait_for_service("/robot_math/wall_cursor_service")
 
         try:
             resp = self.advance_cursor(request="NEXT")

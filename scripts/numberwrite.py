@@ -45,7 +45,7 @@ def inv_kin(x, y, z):
     return theta1, theta2, theta3
 
 
-class ManipulatorMovement:
+class DrawingMovement:
     """
     """
 
@@ -65,7 +65,8 @@ class ManipulatorMovement:
         self.move_group_arm = moveit_commander.MoveGroupCommander("arm")
         self.move_group_gripper = moveit_commander.MoveGroupCommander("gripper")
 
-        # Character path service
+        # Wait for character path service
+        rospy.wait_for_service("/robot_math/character_path_service")
         self.path_client = rospy.ServiceProxy("/robot_math/character_path_service", CharacterPath)
 
 
@@ -121,5 +122,5 @@ class ManipulatorMovement:
 
 
 if __name__ == "__main__":
-    node = ManipulatorMovement()
+    node = DrawingMovement()
     node.run()
