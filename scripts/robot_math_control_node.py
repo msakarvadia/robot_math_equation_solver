@@ -86,10 +86,8 @@ class RobotMathControlNode:
         """
 
         if command == "DRAWING_POS":
-            direction = 1 
             target_dist = TARGET_BOARD_DIST
         elif command == "VIEWING_POS":
-            direction = -1
             target_dist = TARGET_VIEWING_DIST
 
         cmd = Twist()
@@ -99,6 +97,10 @@ class RobotMathControlNode:
         while abs(front_avg_dist - target_dist) > 0.05:
             front_scan, _ = LidarSampler.lidar_front()
             front_avg_dist = np.mean(front_scan)
+            if front_avg_dist - target_dist > 0:
+                direction = 1
+            else:
+                direction = -1
             cursor = self.cursor_msg
             diff_adj = (cursor.image_width / 2) - cursor.cursor_loc 
 
