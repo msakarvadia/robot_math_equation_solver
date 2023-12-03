@@ -6,72 +6,26 @@ import numpy as np
 from skimage.measure import ransac, LineModelND
 
 import rospy
-from sensor_msgs.msg import LaserScan
 
 from robot_math_equation_solver.srv import Cursor, CursorResponse
 from robot_math_equation_solver.msg import CursorLocate
+from robot_math_utils import LidarSampler
 
 
 # Set debug mode
 DEBUG = True
 
-# Set lidar model
-LIDAR = "LDS"
-
-# Set height of cursor and character width
+# Constants for initialization of cursor
 START_HEIGHT = 0.37
 CHAR_WIDTH = 0.025
 CHAR_HEIGHT = 0.05
 
-# Set hand-eye calibration for manipulator-camera operation
+# Set calibration for manipulator-camera operations
 CAMERA_ANGLE_L = 0.2792
 CAMERA_ANGLE_R = -0.1919
 
 
-class SampleWallPoints:
-    """
-    Utility class which samples lidar scans from a given sweep, and converts
-    the data points to cartesian frame of the robot.
-    """
-
-    # Lidar radians-to-index mappings (precomputed)
-    lds = np.fromfunction(lambda k: k * np.pi / (180), (360,))
-    rp = np.fromfunction(lambda k: ((573.5 + k) % 1147) * np.pi / (573.5), (1147,))
-
-    @classmethod
-    def lidar_front(cls):
-        """
-        Class method which samples from the sector -Pi/8 to Pi/8.
-        """
-
-        # Sample a single lidar scan 
-        data = None
-        while data is None:
-            data = rospy.wait_for_message("/scan", LaserScan, timeout=1)
-        ranges = np.array(data.ranges)
-
-        # Adjust for lidar differences
-        if LIDAR == "LDS":
-            scan_left = np.array([ranges[i] for i in range(337, 360)])
-            scan_right = np.array([ranges[i] for i in range(0, 23)])
-            scan_data = np.concatenate((scan_left, scan_right), axis=0)
-
-            angles_left = np.array([cls.lds[i] for i in range(337, 360)])
-            angles_right = np.array([cls.lds[i] for i in range(0, 23)])
-            angles = np.concatenate((angles_left, angles_right), axis=0)
-
-        elif LIDAR == "RP":
-            scan_data = np.array([ranges[i] for i in range(502, 646)])
-            angles = np.array([cls.rp[i] for i in range(502, 646)])
- 
-        # Convert coordinates and stack into (x. y) points
-        x = np.cos(angles) * scan_data
-        y = np.sin(angles) * scan_data
-
-        return np.column_stack((x, y))
-
-
-class CursorProjectionService:
+class CursorWallTransformation:
     """
     A ROS service which tracks the current location of the "virtual wall cursor".
 
@@ -163,7 +117,12 @@ class CursorProjectionService:
         # Draw 10 lidar scans to use in estimation
         wall_points = np.empty([1,2]) 
         for _ in range(10):
-            wall_points = np.concatenate((wall_points, SampleWallPoints.lidar_front()))
+            # Convert readings to cartesian coordinates and stack the points
+            scan_data, angles = LidarSampler.lidar_front()
+            x = np.cos(angles) * scan_data
+            y = np.sin(angles) * scan_data
+            lidar_sample = np.column_stack((x, y))
+            wall_points = np.concatenate((wall_points, lidar_sample))
 
         # Estimate wall location
         model, _ = ransac(wall_points, 
@@ -210,5 +169,5 @@ class CursorProjectionService:
 
 
 if __name__ == "__main__":
-    server = CursorProjectionService()
+    server = CursorWallTransformation()
     rospy.spin()

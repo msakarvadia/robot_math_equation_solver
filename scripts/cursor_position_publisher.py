@@ -11,13 +11,14 @@ from robot_math_equation_solver.msg import CursorLocate
 # Set tag for cursor
 TAG_NUM = 1
 
-class FindCursorTag:
+class CursorPositionPublisher:
     """
     Node that uses OpenCV to track the cursor location used for writing
     characters onto a wall in front of the robot. The initial writing
     operation uses a tag to mark where the robot should start writing.
     """
     
+
     def __init__(self):
         rospy.init_node("robot_math_wall_cursor_position_publisher")
 
@@ -34,6 +35,7 @@ class FindCursorTag:
         self.image_sub = rospy.Subscriber('/camera/rgb/image_raw', Image, self.image_callback)
 
         self.tag_loc = 0
+
 
     def image_callback(self, data):
         """
@@ -57,5 +59,5 @@ class FindCursorTag:
 
 
 if __name__ == "__main__":
-    node = FindCursorTag()
+    node = CursorPositionPublisher()
     rospy.spin()
