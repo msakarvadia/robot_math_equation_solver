@@ -34,7 +34,7 @@ class CursorPositionPublisher:
         # Subscribe to camera feed
         self.image_sub = rospy.Subscriber('/camera/rgb/image_raw', Image, self.image_callback)
 
-        self.tag_loc = 0
+        self.tag_loc = -1
 
 
     def image_callback(self, data):
@@ -42,6 +42,8 @@ class CursorPositionPublisher:
         Callback method which publishes the pixel location and image width of 
         the recognized cursor tag.
         """
+
+        self.tag_loc = -1
 
         # Encode/preprocess image for processing with cv2
         img = self.bridge.imgmsg_to_cv2(data, desired_encoding='bgr8')
