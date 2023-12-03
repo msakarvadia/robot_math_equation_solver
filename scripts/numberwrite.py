@@ -45,7 +45,7 @@ def inv_kin(x, y, z):
     return theta1, theta2, theta3
 
 
-class DrawingMovement:
+class DrawingMovementPlanner:
     """
     """
 
@@ -122,5 +122,5 @@ class DrawingMovement:
 
 
 if __name__ == "__main__":
-    node = DrawingMovement()
+    node = DrawingMovementPlanner()
     node.run()

@@ -25,8 +25,7 @@ class SystemCoordinator:
         
         # Start cursor locator subscriber
         self.cursor_locator = rospy.Subscriber("/robot_math/cursor_position", CursorLocate, self.cursor_position_callback) 
-
-        self.cursor_msg = None
+        self.cursor_msg = CursorLocate(cursor_loc=-1,image_width=0)
 
 
     def run(self):
@@ -52,14 +51,27 @@ class SystemCoordinator:
 
     def find_cursor(self):
         """
+        Position robot facing the cursor location.
         """
 
-        # The tolerable range of the goal x-coordinate
-        while pos == -1 or pos > middle + goal_range or pos < middle - goal_range:
-            self.vel_twist.angular.z = 0.1
-            pos = self.get_goal_pos(msg)
-            
-        self.vel_twist.angular.z = 0.0
+        cmd = Twist()
+        cmd.linear.x = 0
+
+        diff_adj = -1
+        cursor = self.cursor_msg
+
+        rate = rospy.Rate(10)
+        while cursor.cursor_loc == -1 or diff_adj > 5 :
+            cursor = self.cursor_msg
+
+            if cursor.cursor_loc != -1:
+                diff_adj = (cursor.image_width / 2) - cursor.cursor_loc 
+                cmd.angular.z = min(0.001 * diff_adj, 0.2)
+            else:
+                cmd.angular.z = 0.2
+
+            self.movement_pub.publish(cmd)
+            rate.sleep()
     
 
     def move_to_board(self):
@@ -75,13 +87,13 @@ class SystemCoordinator:
 
         pass
 
+
     def cursor_position_callback(self, cursor):
         """
+        Callback method for positioning the cursor.
         """
 
-        
-         
-
+        self.cursor_locator = cursor 
 
 
 
