@@ -36,21 +36,21 @@ class RobotMathControlNode:
 
     def run(self):
         """
+        Run the math solving process.
         """
 
-        # Run the math solving process
         while not rospy.is_shutdown():
             self.find_cursor()
 
-            self.reposition("REVERSE")
+            self.reposition("VIEWING_POS")
 
             math_string = process_and_predict_answer_from_cropped_images()
 
-            self.reposition("APPROACH")
+            self.reposition("DRAWING_POS")
 
             self.drawing_pub(math_string)
 
-            self.reposition("REVERSE")
+            self.reposition("VIEWING_POS")
 
             rospy.sleep(20)
 
@@ -84,22 +84,25 @@ class RobotMathControlNode:
         """
         Move the robot to and from the drawing and viewing positions.
         """
-        if command == "APPROACH":
+
+        if command == "DRAWING_POS":
             direction = 1 
-        elif command == "REVERSE":
+            target_dist = TARGET_BOARD_DIST
+        elif command == "VIEWING_POS":
             direction = -1
+            target_dist = TARGET_VIEWING_DIST
 
         cmd = Twist()
         front_avg_dist = 999
 
         rate = rospy.Rate(10)
-        while abs(front_avg_dist - TARGET_BOARD_DIST) > 0.05:
+        while abs(front_avg_dist - target_dist) > 0.05:
             front_scan, _ = LidarSampler.lidar_front()
             front_avg_dist = np.mean(front_scan)
             cursor = self.cursor_msg
             diff_adj = (cursor.image_width / 2) - cursor.cursor_loc 
 
-            cmd.linear.x = direction * 0.1 * min(front_avg_dist - TARGET_BOARD_DIST, 1)
+            cmd.linear.x = direction * 0.1 * min(front_avg_dist - target_dist, 1)
             cmd.angular.z = direction * 0.001 * diff_adj
             self.movement_pub.publish(cmd)
 
