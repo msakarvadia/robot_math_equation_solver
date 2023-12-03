@@ -19,7 +19,7 @@ class FindCursorTag:
     """
     
     def __init__(self):
-        rospy.init_node("robot_math_wall_cursor_locator")
+        rospy.init_node("robot_math_wall_cursor_position_publisher")
 
         # OpenCV bridge
         self.bridge = cv_bridge.CvBridge()
@@ -28,7 +28,7 @@ class FindCursorTag:
         self.aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_50)
 
         # Publish angle (radians) to cursor tag
-        self.cursor_pub = rospy.Publisher('/robot_math/cursor_locator', CursorLocate, queue_size=10, latch=True)
+        self.cursor_pub = rospy.Publisher('/robot_math/cursor_position', CursorLocate, queue_size=10, latch=True)
 
         # Subscribe to camera feed
         self.image_sub = rospy.Subscriber('/camera/rgb/image_raw', Image, self.image_callback)

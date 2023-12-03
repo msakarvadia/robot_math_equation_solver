@@ -75,7 +75,7 @@ def y_rotate_hack(char_path, rad):
     return rotated_points
 
 
-class CharacterService:
+class CharacterPathGenerator:
     """
     A ROS service which provides 3D trajectories for writing characters onto an
     identified wall (using the "virtual cursor" service) in front of the robot.
@@ -209,5 +209,5 @@ class CharacterService:
 
 
 if __name__ == "__main__":
-    server = CharacterService()
+    server = CharacterPathGenerator()
     rospy.spin()

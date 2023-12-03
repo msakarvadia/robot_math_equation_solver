@@ -71,7 +71,7 @@ class SampleWallPoints:
         return np.column_stack((x, y))
 
 
-class WallCursorService:
+class CursorProjectionService:
     """
     A ROS service which tracks the current location of the "virtual wall cursor".
 
@@ -92,7 +92,7 @@ class WallCursorService:
                                              self.service_response)
 
         # Start cursor locator subscriber
-        self.cursor_locator = rospy.Subscriber("/robot_math/cursor_locator", 
+        self.cursor_locator = rospy.Subscriber("/robot_math/cursor_position", 
                                                CursorLocate, 
                                                self.cursor_locator_callback)
 
@@ -210,5 +210,5 @@ class WallCursorService:
 
 
 if __name__ == "__main__":
-    server = WallCursorService()
+    server = CursorProjectionService()
     rospy.spin()
