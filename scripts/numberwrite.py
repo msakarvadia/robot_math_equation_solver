@@ -45,7 +45,7 @@ def inv_kin(x, y, z):
     return theta1, theta2, theta3
 
 
-class DrawingMovementPlanner:
+class InverseKinematicsPlanner:
     """
     """
 
@@ -122,5 +122,5 @@ class DrawingMovementPlanner:
 
 
 if __name__ == "__main__":
-    node = DrawingMovementPlanner()
+    node = InverseKinematicsPlanner()
     node.run()
