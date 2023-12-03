@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
+import math
 from collections import deque
 from json import load
-import math
 from os.path import dirname
 
 import numpy as np
@@ -43,17 +43,18 @@ def interpolate_path(points_array, resolution):
     # Create new points array to fill in
     interpolated_array = np.empty([points_array.shape[0] + np.sum(num_steps), 
                                    points_array.shape[1]])
-    pos = 0
 
     # Fill in the points
-    for i, point in enumerate(points_array):
-        interpolated_array[pos] = point
+    pos = 0
+    for i, start_point in enumerate(points_array):
+        interpolated_array[pos] = start_point
         pos += 1
-        cum_step = np.zeros([1, points_array.shape[1]])
+        cum_step_point = np.zeros([1, points_array.shape[1]])
         if i < len(points_array) - 1:
+            # Step from start point
             for _ in range(num_steps[i][0]):
-                cum_step += step_vec[i]
-                interpolated_array[pos] = point + cum_step
+                cum_step_point += step_vec[i]
+                interpolated_array[pos] = start_point + cum_step_point
                 pos += 1
     
     return interpolated_array 
@@ -70,7 +71,6 @@ def y_rotate_hack(char_path, rad):
                         [0, 0, 0, 0]])
 
     rotated_points = np.dot(rotation, np.transpose(char_path)).transpose()
-    #rotated_points *= np.array([1, 0.5, 1, 1])
     
     return rotated_points
 
@@ -116,7 +116,7 @@ class CharacterService:
         Request callback method for the service.
         """
 
-        # Process valid requests
+        # Respond with next enqueued path, if it exists
         if len(self.segment_queue) == 0:
             return CharacterPathResponse(point_path=[], dim=0)
         elif request.request:
@@ -133,27 +133,26 @@ class CharacterService:
         for char in math_string.data:
 
             # Create 4D base character path
-            char_path = self.get_base_path(char)
+            base_path = self.get_base_path(char)
 
             # If invalid character
-            if char_path.size == 0:
+            if base_path.size == 0:
                 continue
 
             # Get current cursor location
             cursor_loc = self.advance_cursor_client()
-
             if cursor_loc is None:
                 continue
 
             # Add the cursor offset and calculate wall transformation
-            #rotated_points = y_rotate_hack(char_path, -.1)
-            rotated_points = char_path
-            rotated_points += np.array([0, cursor_loc.y_offset, cursor_loc.z_offset, 1])
+            #char_path = y_rotate_hack(base_path, -.1)
+            char_path = base_path
+            char_path += np.array([0, cursor_loc.y_offset, cursor_loc.z_offset, 1])
             transform = np.array(cursor_loc.transform).reshape(4, 4)
-            projected_points = np.dot(transform, np.transpose(rotated_points)).transpose()
+            char_path = np.dot(transform, np.transpose(char_path)).transpose()
 
             # Enqueue flattened list of 3D points for inverse kinematics
-            self.segment_queue.append(list(projected_points[:,:3].flatten()))
+            self.segment_queue.append(list(char_path[:,:3].flatten()))
 
 
     def get_base_path(self, char):

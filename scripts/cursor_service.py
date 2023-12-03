@@ -165,14 +165,12 @@ class WallCursorService:
         for _ in range(10):
             wall_points = np.concatenate((wall_points, SampleWallPoints.lidar_front()))
 
-        print(len(wall_points))
         # Estimate wall location
         model, _ = ransac(wall_points, 
                           LineModelND, 
                           min_samples=5,
                           max_trials=100,
                           residual_threshold=0.1)
-
         origin, direction_vector = model.params
 
         # Calculate rotation
@@ -203,8 +201,7 @@ class WallCursorService:
 
         # Calculate hand-eye angle mapping
         if DEBUG == True:
-            #self.angle_to_cursor = 0.25
-            self.angle_to_cursor = 0.0
+            self.angle_to_cursor = 0.25
         else:
             angle_from_left_edge = ((abs(CAMERA_ANGLE_L) + abs(CAMERA_ANGLE_R)) 
                                     * img.cursor_loc / img.image_width)

@@ -5,8 +5,8 @@ import subprocess
 
 import numpy as np
 
-import moveit_commander
 import rospy
+import moveit_commander
 from moveit_msgs.msg import RobotTrajectory
 from trajectory_msgs.msg import JointTrajectoryPoint
 
