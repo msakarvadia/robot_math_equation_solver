@@ -51,15 +51,15 @@ class ManipulatorMovement:
 
     def __init__(self):
         # initialize this node
-        rospy.init_node('robot_math_manipulator_movement')
+        rospy.init_node("robot_math_manipulator_movement")
 
         # Disable allowed start tolerance for moveit
-        ros_setup_message = """
+        manipulator_setup = """
         rosservice call /move_group/trajectory_execution/set_parameters "config:
         doubles:
             - {name: 'allowed_start_tolerance', value: 0.0}"
         """
-        subprocess.call(ros_setup_message, shell=True)
+        subprocess.call(manipulator_setup, shell=True)
 
         # the interface to the group of joints making up the turtlebot3
         self.move_group_arm = moveit_commander.MoveGroupCommander("arm")
@@ -94,7 +94,7 @@ class ManipulatorMovement:
 
         # Execute trajectory
         self.move_group_arm.execute(trajectory, wait=True)
-        rospy.sleep(time_increment * len(points))
+        rospy.sleep(time_increment * len(points) + 0.5)
 
 
     def run(self):

@@ -20,7 +20,7 @@ START_HEIGHT = 0.37
 CHAR_WIDTH = 0.025
 CHAR_HEIGHT = 0.05
 
-# Set calibration for manipulator-camera operations
+# Set calibration for manipulator-camera operation
 CAMERA_ANGLE_L = 0.2792
 CAMERA_ANGLE_R = -0.1919
 
@@ -41,14 +41,10 @@ class CursorWallTransformation:
         rospy.init_node("robot_math_wall_cursor_server")
 
         # Start service
-        self.segment_service = rospy.Service("/robot_math/wall_cursor_service", 
-                                             Cursor, 
-                                             self.service_response)
+        self.segment_service = rospy.Service("/robot_math/wall_cursor_service", Cursor, self.service_response)
 
         # Start cursor locator subscriber
-        self.cursor_locator = rospy.Subscriber("/robot_math/cursor_position", 
-                                               CursorLocate, 
-                                               self.cursor_locator_callback)
+        self.cursor_locator = rospy.Subscriber("/robot_math/cursor_position", CursorLocate, self.cursor_position_callback)
 
         # Cursor data
         self.y_offset = None
@@ -152,7 +148,7 @@ class CursorWallTransformation:
         self.transform = transform.flatten()
 
 
-    def cursor_locator_callback(self, img):
+    def cursor_position_callback(self, img):
         """
         Callback method which updates the angle to the cursor based on the
         computer vision node tracking it.
