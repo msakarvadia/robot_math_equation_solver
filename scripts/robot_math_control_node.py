@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import numpy as np
+
 import rospy
 from std_msgs.msg import String
 from geometry_msgs.msg import Twist
@@ -9,13 +11,17 @@ from robot_math_equation_solver.msg import CursorLocate
 from robot_math_utils import LidarSampler
 
 
-class SystemCoordinator:
+TARGET_BOARD_DIST = 0.3
+TARGET_VIEWING_DIST = 0.8
+
+
+class RobotMathControlNode:
     """
     """
 
 
     def __init__(self):
-        rospy.init_node("robot_math_brain")
+        rospy.init_node("robot_math_master_control")
 
         # Start robot movements publisher
         self.movement_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10, latch=True)
@@ -36,22 +42,22 @@ class SystemCoordinator:
         while not rospy.is_shutdown():
             self.find_cursor()
 
-            self.move_to_viewing_pos()
+            self.reposition("REVERSE")
 
             math_string = process_and_predict_answer_from_cropped_images()
 
-            self.move_to_board()
+            self.reposition("APPROACH")
 
             self.drawing_pub(math_string)
 
-            self.move_to_viewing_pos()
+            self.reposition("REVERSE")
 
             rospy.sleep(20)
 
 
     def find_cursor(self):
         """
-        Position robot facing the cursor location.
+        Rotate robot until facing the cursor location.
         """
 
         cmd = Twist()
@@ -74,19 +80,31 @@ class SystemCoordinator:
             rate.sleep()
     
 
-    def move_to_board(self):
+    def reposition(self, command):
         """
+        Move the robot to and from the drawing and viewing positions.
         """
+        if command == "APPROACH":
+            direction = 1 
+        elif command == "REVERSE":
+            direction = -1
 
-        pass
+        cmd = Twist()
+        front_avg_dist = 999
 
+        rate = rospy.Rate(10)
+        while abs(front_avg_dist - TARGET_BOARD_DIST) > 0.05:
+            front_scan, _ = LidarSampler.lidar_front()
+            front_avg_dist = np.mean(front_scan)
+            cursor = self.cursor_msg
+            diff_adj = (cursor.image_width / 2) - cursor.cursor_loc 
 
-    def move_to_viewing_pos(self):
-        """
-        """
+            cmd.linear.x = direction * 0.1 * min(front_avg_dist - TARGET_BOARD_DIST, 1)
+            cmd.angular.z = direction * 0.001 * diff_adj
+            self.movement_pub.publish(cmd)
 
-        pass
-
+            rate.sleep()
+ 
 
     def cursor_position_callback(self, cursor):
         """
@@ -98,5 +116,5 @@ class SystemCoordinator:
 
 
 if __name__ == "__main__":
-    node = SystemCoordinator()
+    node = RobotMathControlNode()
     node.run()
