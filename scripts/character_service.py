@@ -2,6 +2,7 @@
 
 from collections import deque
 from json import load
+import math
 from os.path import dirname
 
 import numpy as np
@@ -13,13 +14,65 @@ from robot_math_equation_solver.srv import CharacterPath, CharacterPathResponse,
 
 
 # Scaling and offset configuration
+PATH_RESOLUTION = 0.005                     # interpolation along path
 CHARACTER_SCALING = 0.002                   # characters set to 0.04m wide
-PEN_OFFSET = -0.07                          # the pen is about 0.07m long
+# PEN_OFFSET = 0.006                        # the pen is about 0.07m long
+PEN_OFFSET = -0.015                         # the pen is about 0.07m long
 PEN_LIFT = {                                # pen lift offsets
-    "x": -0.03,
+    "x": -0.05,
     "y": -1 * 10 * CHARACTER_SCALING, 
     "z": 10 * CHARACTER_SCALING,
 }
+
+
+def interpolate_path(points_array, resolution):
+    """
+    Helper function to linearly interpolate character paths. Array passed is a 
+    numpy array and resolution is the length traveled along path before creating
+    a new point.
+    """
+
+    # Calculate vectors between points and their magnitudes
+    diff_vecs = np.diff(points_array, axis=0)
+    magnitudes = np.linalg.norm(diff_vecs, axis=1, keepdims=True)
+
+    # Calculate number of steps between each point and single step vector
+    num_steps = (magnitudes / resolution).astype(int)
+    step_vec = diff_vecs * (resolution / magnitudes)
+
+    # Create new points array to fill in
+    interpolated_array = np.empty([points_array.shape[0] + np.sum(num_steps), 
+                                   points_array.shape[1]])
+    pos = 0
+
+    # Fill in the points
+    for i, point in enumerate(points_array):
+        interpolated_array[pos] = point
+        pos += 1
+        cum_step = np.zeros([1, points_array.shape[1]])
+        if i < len(points_array) - 1:
+            for _ in range(num_steps[i][0]):
+                cum_step += step_vec[i]
+                interpolated_array[pos] = point + cum_step
+                pos += 1
+    
+    return interpolated_array 
+
+
+def y_rotate_hack(char_path, rad):
+    """
+    Helper function hack to rotate character path about the y axis, when wall is
+    not completely vertical
+    """
+    rotation = np.array([[math.cos(rad), 0, -1 * math.sin(rad), 0],
+                        [0, 1, 0, 0],
+                        [math.sin(rad), 0, math.cos(rad), 0],
+                        [0, 0, 0, 0]])
+
+    rotated_points = np.dot(rotation, np.transpose(char_path)).transpose()
+    #rotated_points *= np.array([1, 0.5, 1, 1])
+    
+    return rotated_points
 
 
 class CharacterService:
@@ -37,10 +90,12 @@ class CharacterService:
 
     def __init__(self):
         rospy.init_node("robot_math_character_path_server")
+
         # Start service
         self.segment_service = rospy.Service("/robot_math/character_path_service", 
                                              CharacterPath, 
                                              self.service_response)
+
         # Subscribe to computer vision node and cursor service
         self.math_string_sub = rospy.Subscriber("/robot_math/math_strings", 
                                                 String, 
@@ -62,7 +117,9 @@ class CharacterService:
         """
 
         # Process valid requests
-        if request.request and len(self.segment_queue) > 0:
+        if len(self.segment_queue) == 0:
+            return CharacterPathResponse(point_path=[], dim=0)
+        elif request.request:
             return CharacterPathResponse(point_path=self.segment_queue.popleft(), dim=3)
 
 
@@ -83,15 +140,17 @@ class CharacterService:
                 continue
 
             # Get current cursor location
-            cursor = self.advance_cursor_client()
+            cursor_loc = self.advance_cursor_client()
 
-            if cursor is None:
+            if cursor_loc is None:
                 continue
 
             # Add the cursor offset and calculate wall transformation
-            char_path += np.array([0, cursor.y_offset, cursor.z_offset, 1])
-            transform = np.array(cursor.transform).reshape(4, 4)
-            projected_points = np.dot(transform, np.transpose(char_path)).transpose()
+            #rotated_points = y_rotate_hack(char_path, -.1)
+            rotated_points = char_path
+            rotated_points += np.array([0, cursor_loc.y_offset, cursor_loc.z_offset, 1])
+            transform = np.array(cursor_loc.transform).reshape(4, 4)
+            projected_points = np.dot(transform, np.transpose(rotated_points)).transpose()
 
             # Enqueue flattened list of 3D points for inverse kinematics
             self.segment_queue.append(list(projected_points[:,:3].flatten()))
@@ -130,7 +189,8 @@ class CharacterService:
                     else:
                         char_path[(i-1)//2][2] = coord * CHARACTER_SCALING
 
-        return char_path
+        # Return an interpolated path
+        return interpolate_path(char_path, PATH_RESOLUTION)
 
 
     def advance_cursor_client(self):
