@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 
+import math
 import subprocess
 
-import rospy
-
-import moveit_commander
-import math
 import numpy as np
 
+import moveit_commander
+import rospy
 from moveit_msgs.msg import RobotTrajectory
 from trajectory_msgs.msg import JointTrajectoryPoint
 
