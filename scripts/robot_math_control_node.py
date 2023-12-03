@@ -60,13 +60,15 @@ class RobotMathControlNode:
         Rotate robot until facing the cursor location.
         """
 
+        rate = rospy.Rate(10)
+
         cmd = Twist()
         cmd.linear.x = 0
 
         diff_adj = -1
         cursor = self.cursor_msg
 
-        rate = rospy.Rate(10)
+        # Rotate until cursor is centered in front of robot
         while cursor.cursor_loc == -1 or diff_adj > 5 :
             cursor = self.cursor_msg
 
@@ -85,6 +87,8 @@ class RobotMathControlNode:
         Move the robot to and from the drawing and viewing positions.
         """
 
+        rate = rospy.Rate(10)
+
         if command == "DRAWING_POS":
             target_dist = TARGET_BOARD_DIST
         elif command == "VIEWING_POS":
@@ -93,17 +97,21 @@ class RobotMathControlNode:
         cmd = Twist()
         front_avg_dist = 999
 
-        rate = rospy.Rate(10)
+        # Use proportional control to move to position
         while abs(front_avg_dist - target_dist) > 0.05:
+            # Compare distance to board and target
             front_scan, _ = LidarSampler.lidar_front()
             front_avg_dist = np.mean(front_scan)
             if front_avg_dist - target_dist > 0:
                 direction = 1
             else:
                 direction = -1
+
+            # Adjust orientation to cursor
             cursor = self.cursor_msg
             diff_adj = (cursor.image_width / 2) - cursor.cursor_loc 
 
+            # Publish movement command
             cmd.linear.x = direction * 0.1 * min(front_avg_dist - target_dist, 1)
             cmd.angular.z = direction * 0.001 * diff_adj
             self.movement_pub.publish(cmd)
@@ -117,7 +125,6 @@ class RobotMathControlNode:
         """
 
         self.cursor_locator = cursor 
-
 
 
 if __name__ == "__main__":
