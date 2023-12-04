@@ -161,7 +161,14 @@ include_directories(
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 # catkin_install_python(PROGRAMS
-#   scripts/my_python_script
+#   src/nodes/character_drawing_path_planner.py
+#   src/nodes/cursor_position_publisher.py
+#   src/nodes/cursor_wall_transformation_calculator.py
+#   src/nodes/numberwrite.py
+#   src/nodes/robot_math_control_node.py
+#   src/scripts/test.py
+#   src/scripts/robot_math_utils.py
+#   src/scripts/nn.py
 #   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 # )
 

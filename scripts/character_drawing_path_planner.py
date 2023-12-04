@@ -6,7 +6,6 @@ from json import load
 from os.path import dirname
 
 import numpy as np
-
 import rospy
 from std_msgs.msg import String
 

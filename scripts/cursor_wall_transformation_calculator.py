@@ -2,14 +2,13 @@
 
 import math
 
+import rospy
 import numpy as np
 from skimage.measure import ransac, LineModelND
 
-import rospy
-
 from robot_math_equation_solver.srv import Cursor, CursorResponse
 from robot_math_equation_solver.msg import CursorLocate
-from robot_math_equation_solver.src.scripts.robot_math_utils import LidarSampler
+from robot_math_utils import LidarSampler
 
 
 # Set debug mode
