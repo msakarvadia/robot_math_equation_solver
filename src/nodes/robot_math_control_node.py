@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
+import rospy, cv2, cv_bridge
 import numpy as np
-
-import rospy, rospkg, cv2, cv_bridge, numpy
 from std_msgs.msg import String
 from geometry_msgs.msg import Twist
 
@@ -10,9 +9,9 @@ from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Vector3
 from sensor_msgs.msg import Image
 
-import test
 from robot_math_equation_solver.msg import CursorLocate
-from robot_math_utils import LidarSampler
+from robot_math_equation_solver.src.scripts import test
+from robot_math_equation_solver.src.scripts.robot_math_utils import LidarSampler
 import os
 
 # Path of directory on where this file is located
