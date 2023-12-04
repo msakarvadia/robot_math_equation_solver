@@ -5,12 +5,15 @@ import numpy as np
 
 import cv_bridge
 import rospy
+import os
 from sensor_msgs.msg import Image
+
+path_prefix = os.path.dirname(__file__) 
 
 #import camra.py
 
 network = Net()
-PATH = 'results/model.pth'
+PATH = path_prefix + '/results/model.pth'
 network.load_state_dict(torch.load(PATH))
 network.eval()
 
@@ -133,13 +136,13 @@ def do_inference(img_name:str, label:int):
     return prediction
 
 
-do_inference("4_48.jpg", 4)
+"""do_inference("4_48.jpg", 4)
 
 do_inference("0_46621.jpg", 0)
 
 do_inference("3_40.jpg", 3)
 
-do_inference("8_362.jpg", 8)
+do_inference("8_362.jpg", 8)"""
 
 
 def process_and_predict_answer_from_cropped_images(cropped_images:dict):
@@ -222,9 +225,9 @@ rospy.Subscriber('camera/rgb/image_raw', Image, img_callback)
 
 rospy.spin()"""
 
-#processing test images
+"""#processing test images
 cropped_images = equation_from_image("IMG_1686.jpg")
-answer = process_and_predict_answer_from_cropped_images(cropped_images)
+answer = process_and_predict_answer_from_cropped_images(cropped_images)"""
 
 """cropped_images = equation_from_image("IMG_1687.jpg")
 answer = process_and_predict_answer_from_cropped_images(cropped_images)

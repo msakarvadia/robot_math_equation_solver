@@ -2,13 +2,21 @@
 
 import numpy as np
 
-import rospy
+import rospy, rospkg, cv2, cv_bridge, numpy
 from std_msgs.msg import String
 from geometry_msgs.msg import Twist
 
-from nn import process_and_predict_answer_from_cropped_images
+from sensor_msgs.msg import LaserScan
+from geometry_msgs.msg import Vector3
+from sensor_msgs.msg import Image
+
+import test
 from robot_math_equation_solver.msg import CursorLocate
 from robot_math_utils import LidarSampler
+import os
+
+# Path of directory on where this file is located
+path_prefix = os.path.dirname(__file__) 
 
 
 TARGET_BOARD_DIST = 0.3
@@ -33,6 +41,16 @@ class RobotMathControlNode:
         self.cursor_locator = rospy.Subscriber("/robot_math/cursor_position", CursorLocate, self.cursor_position_callback) 
         self.cursor_msg = CursorLocate(cursor_loc=-1,image_width=0)
 
+        self.bridge = cv_bridge.CvBridge()
+
+        # subscribe to the robot's RGB camera data stream
+        # self.image_sub = rospy.Subscriber('camera/rgb/image_raw', Image, self.image_callback)
+
+        # self.bridge = cv_bridge.CvBridge()
+
+
+    # def image_callback(self, msg):
+
 
     def run(self):
         """
@@ -40,19 +58,29 @@ class RobotMathControlNode:
         """
 
         while not rospy.is_shutdown():
-            self.find_cursor()
+            #self.find_cursor()
 
-            self.reposition("VIEWING_POS")
+            #self.reposition("VIEWING_POS")
 
-            math_string = process_and_predict_answer_from_cropped_images()
+            # Sample a single lidar scan 
+            img = None
+            while img is None:
+                img = rospy.wait_for_message("camera/rgb/image_raw", Image, timeout=1)
 
-            self.reposition("DRAWING_POS")
+            img = self.bridge.imgmsg_to_cv2(img,desired_encoding='bgr8')
+            cv2.imwrite(path_prefix + "/equation.jpg", img)
+            
+            equation = test.equation_from_image(path_prefix + "/equation.jpg")
 
-            self.drawing_pub(math_string)
+            answer = test.process_and_predict_answer_from_cropped_images(equation)
 
-            self.reposition("VIEWING_POS")
+            #self.reposition("DRAWING_POS")
 
-            rospy.sleep(20)
+            self.drawing_pub.publish(str(answer))
+
+            #self.reposition("VIEWING_POS")
+
+            rospy.sleep(40)
 
 
     def find_cursor(self):

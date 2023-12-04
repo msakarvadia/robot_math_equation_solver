@@ -14,10 +14,10 @@ from robot_math_equation_solver.srv import CharacterPath, CharacterPathResponse,
 
 
 # Scaling and offset configuration
-PATH_RESOLUTION = 0.005                     # interpolation along path
+PATH_RESOLUTION = 0.001                     # interpolation along path
 CHARACTER_SCALING = 0.002                   # characters set to 0.04m wide
 # PEN_OFFSET = 0.006                        # the pen is about 0.07m long
-PEN_OFFSET = -0.015                         # the pen is about 0.07m long
+PEN_OFFSET = 0.032                         # the pen is about 0.07m long
 PEN_LIFT = {                                # pen lift offsets
     "x": -0.05,
     "y": -1 * 10 * CHARACTER_SCALING, 
@@ -143,8 +143,8 @@ class CharacterPathGenerator:
                 continue
 
             # Add the cursor offset and calculate wall transformation
-            #char_path = y_rotate_hack(base_path, -.1)
-            char_path = base_path
+            char_path = y_rotate_hack(base_path, 0.3)
+            #char_path = base_path
             char_path += np.array([0, cursor_loc.y_offset, cursor_loc.z_offset, 1])
             transform = np.array(cursor_loc.transform).reshape(4, 4)
             char_path = np.dot(transform, np.transpose(char_path)).transpose()
