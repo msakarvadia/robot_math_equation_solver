@@ -10,8 +10,6 @@ from sensor_msgs.msg import Image
 
 path_prefix = os.path.dirname(__file__) 
 
-#import camra.py
-
 network = Net()
 PATH = path_prefix + '/results/model.pth'
 network.load_state_dict(torch.load(PATH))
@@ -234,6 +232,9 @@ answer = process_and_predict_answer_from_cropped_images(cropped_images)
 
 cropped_images = equation_from_image("IMG_1688.jpeg")
 answer = process_and_predict_answer_from_cropped_images(cropped_images)"""
+
+cropped_images = equation_from_image("IMG_1752.jpeg")
+answer = process_and_predict_answer_from_cropped_images(cropped_images)
 
 
 
