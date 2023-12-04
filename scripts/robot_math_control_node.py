@@ -67,9 +67,9 @@ class RobotMathControlNode:
                 img = rospy.wait_for_message("camera/rgb/image_raw", Image, timeout=1)
 
             img = self.bridge.imgmsg_to_cv2(img,desired_encoding='bgr8')
-            cv2.imwrite(path_prefix + "/equation.jpg", img)
+            cv2.imwrite(path_prefix + "/data/equation.jpg", img)
             
-            equation = test.equation_from_image(path_prefix + "/equation.jpg")
+            equation = test.equation_from_image(path_prefix + "/data/equation.jpg")
 
             answer = test.process_and_predict_answer_from_cropped_images(equation)
 
