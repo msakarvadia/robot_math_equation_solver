@@ -1,4 +1,4 @@
-# Robot Math Equation Solver
+![CV](https://github.com/msakarvadia/robot_math_equation_solver/assets/22324068/52054209-7d18-4367-bdbc-c3d81d3830e0)# Robot Math Equation Solver
 tldr:  Use a turtlebot + arm + camera to recognize handwritten math equations and write the answer on a whiteboard.
 
 ### Project Description
@@ -35,6 +35,9 @@ All of the scripts are in the `scripts` subdir.
     -  `process_and_predict_answer_from_cropped_images`: Allows a human to manually correct any misclassified images, evaluates the equation, returns the answer.
 - This inference is done in `robot_math_control_node.py` in the `run_inference` method of the `RobotMathControlNode` class.
 - Note that prior to doing inference on an image of an equation: the image is broken up into smaller sub-images by using the `cv2` bounding box functionalty. We draw a bounding box around all continuous curves. We had to do some trouble shooting on this end to make sure we discarded bounding boxes that were too small (aka bounding boxes that had picked up a stray spec on the whiteboard).
+
+![CV](https://github.com/msakarvadia/robot_math_equation_solver/assets/22324068/787107c2-ce09-474b-bfdd-73cdf9ce8fc7)
+
 
 #### Inverse Kinematics
 
