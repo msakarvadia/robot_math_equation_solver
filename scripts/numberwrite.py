@@ -8,6 +8,7 @@ import numpy as np
 import rospy
 import moveit_commander
 from moveit_msgs.msg import RobotTrajectory
+from std_msgs.msg import Bool
 from trajectory_msgs.msg import JointTrajectoryPoint
 
 from robot_math_equation_solver.srv import CharacterPath
@@ -18,10 +19,9 @@ def inv_kin(x, y, z):
     """
 
     # Set lengths
-    l1 = 0.077 + 0.141 - 0.03       # arm-base + turtlebot height - lidar height
-    l2 = 0.130                      # upper arm length 
-    #l3 = 0.124 + 0.126 + 0.1       # forearm length + gripper
-    l3 = 0.124 + 0.126 + 0.185       # forearm length + gripper
+    l1 = 0.077 + 0.141 - 0.03        # arm-base + turtlebot height - lidar height
+    l2 = 0.130                       # upper arm length 
+    l3 = 0.124 + 0.126 + 0.185       # forearm length + gripper + pen
 
     # Calculate intermediary values
     r = math.sqrt(x**2 + (z - l1)**2)
@@ -70,6 +70,10 @@ class InverseKinematicsPlanner:
         rospy.wait_for_service("/robot_math/character_path_service")
         self.path_client = rospy.ServiceProxy("/robot_math/character_path_service", CharacterPath)
 
+        # Start publisher for signalling finish of manipulator movements
+        self.is_busy_pub = rospy.Publisher("/robot_math/manipulator_busy", Bool, queue_size=10, latch=True)
+        self.is_busy = False
+
 
     def write_num_trajectory(self, points):
         """
@@ -96,7 +100,7 @@ class InverseKinematicsPlanner:
 
         # Execute trajectory
         self.move_group_arm.execute(trajectory, wait=True)
-        rospy.sleep(time_increment * len(points) + 5)
+        rospy.sleep(time_increment * len(points) + 7)
 
 
     def run(self):
@@ -115,9 +119,16 @@ class InverseKinematicsPlanner:
             except rospy.ServiceException as e:
                 print("Service call failed: %s"%e)
 
-            # If server not empty, write the character
+            # If server not empty, write the character and report manipulator busy
             if points.size > 0:
+                if self.is_busy == False:
+                    self.is_busy_pub.publish(True)
+                    self.is_busy = True
                 self.write_num_trajectory(points)
+
+            elif self.is_busy == True:
+                self.is_busy_pub.publish(False)
+                self.is_busy = False
 
             rate.sleep()
 

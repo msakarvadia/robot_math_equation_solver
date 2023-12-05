@@ -2,14 +2,14 @@
 
 import os
 
-import rospy
 import cv2, cv_bridge
 import numpy as np
-from std_msgs.msg import String
-from geometry_msgs.msg import Twist, Vector3
-from sensor_msgs.msg import LaserScan, Image
+import rospy
+from geometry_msgs.msg import Twist
+from sensor_msgs.msg import Image
+from std_msgs.msg import String, Bool
 
-#import test
+import test
 from robot_math_utils import LidarSampler
 from robot_math_equation_solver.msg import CursorLocate
 
@@ -24,6 +24,8 @@ TARGET_VIEWING_DIST = 0.7
 
 class RobotMathControlNode:
     """
+    Represents central control of the math solving process. Controls movement
+    to and from board, solving of math equation, and writing the answer.
     """
 
 
@@ -33,8 +35,10 @@ class RobotMathControlNode:
         # Start robot movements publisher
         self.movement_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10, latch=True)
 
-        # Start drawing movements publisher
+        # Start drawing movements publisher and subscriber
         self.drawing_pub = rospy.Publisher("/robot_math/math_strings", String, queue_size=10, latch=True)
+        self.drawing_sub = rospy.Subscriber("/robot_math/manipulator_busy", Bool, self.manipulator_callback)
+        self.manipulator_busy = False
         
         # Start cursor locator subscriber
         self.cursor_locator = rospy.Subscriber("/robot_math/cursor_position", CursorLocate, self.cursor_position_callback) 
@@ -54,21 +58,22 @@ class RobotMathControlNode:
 
         while not rospy.is_shutdown():
 
-            self.move_to("VIEWING_POS")
+            #self.move_to("VIEWING_POS")
 
-            self.adjust_for_viewing()
+            #self.adjust_for_viewing()
 
             answer = self.run_inference()
 
-            self.move_to("DRAWING_POS")
+            #self.move_to("DRAWING_POS")
 
-            self.drawing_pub.publish(answer)
+            self.draw_answer(answer)
 
             rospy.sleep(10)
 
 
     def run_inference(self):
         """
+        Solve the math equation using trained nn.
         """
 
         # Sample image from camera
@@ -82,6 +87,20 @@ class RobotMathControlNode:
         equation = test.equation_from_image(path_prefix + "/data/equation.jpg")
 
         return str(test.process_and_predict_answer_from_cropped_images(equation))
+
+
+    def draw_answer(self, answer):
+        """
+        Draw answer using inverse kinematics.
+        """
+        
+        self.manipulator_busy = True 
+
+        self.drawing_pub.publish(answer)
+
+        rate = rospy.Rate(2)
+        while self.manipulator_busy == True:
+            rate.sleep()
 
 
     def adjust_for_viewing(self):
@@ -144,7 +163,6 @@ class RobotMathControlNode:
             # Adjust orientation to cursor
             cursor = self.cursor_msg
             diff_adj = (cursor.image_width / 2) - cursor.cursor_loc 
-            print(direction)
 
             # Publish movement command using proportional control
             cmd.linear.x = direction * 0.2 * min(abs(front_avg_dist - target_dist), 1)
@@ -164,6 +182,13 @@ class RobotMathControlNode:
         """
 
         self.cursor_msg = cursor 
+    
+
+    def manipulator_callback(self, is_busy):
+        """
+        Callback method for manipulator movements.
+        """
+        self.manipulator_busy = is_busy.data
 
 
 if __name__ == "__main__":
