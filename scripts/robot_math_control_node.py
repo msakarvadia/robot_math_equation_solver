@@ -127,7 +127,7 @@ class RobotMathControlNode:
 
             self.movement_pub.publish(cmd)
             rate.sleep()
-
+        
         cmd.angular.z = 0.0
         self.movement_pub.publish(cmd)
 
@@ -161,7 +161,10 @@ class RobotMathControlNode:
 
             # Adjust orientation to cursor
             cursor = self.cursor_msg
-            diff_adj = (cursor.image_width / 2) - cursor.cursor_loc 
+            if cursor.cursor_loc != -1:
+                diff_adj = (cursor.image_width / 2) - cursor.cursor_loc 
+            else:
+                diff_adj = 0.0
 
             # Publish movement command using proportional control
             cmd.linear.x = direction * 0.2 * min(abs(front_avg_dist - target_dist), 1)

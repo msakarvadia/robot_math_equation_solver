@@ -2,9 +2,13 @@
 
 import math
 
-import rospy
 import numpy as np
+import rospy
+from geometry_msgs.msg import Pose, PoseStamped
 from skimage.measure import ransac, LineModelND
+from std_msgs.msg import Header
+from tf import TransformListener
+from tf.transformations import euler_from_quaternion
 
 from robot_math_equation_solver.srv import Cursor, CursorResponse
 from robot_math_equation_solver.msg import CursorLocate
@@ -24,6 +28,19 @@ CAMERA_ANGLE_L = 0.2792
 CAMERA_ANGLE_R = -0.1919
 
 
+def get_yaw_from_pose(p):
+    """ A helper function that takes in a Pose object (geometry_msgs) and returns yaw """
+
+    yaw = (euler_from_quaternion([
+            p.orientation.x,
+            p.orientation.y,
+            p.orientation.z,
+            p.orientation.w])
+            [2])
+
+    return yaw
+
+
 class CursorWallTransformation:
     """
     A service which tracks the current location of the "virtual wall cursor".
@@ -39,9 +56,6 @@ class CursorWallTransformation:
     def __init__(self):
         rospy.init_node("robot_math_wall_cursor_server")
 
-        # Start the service
-        self.segment_service = rospy.Service("/robot_math/wall_cursor_service", Cursor, self.service_response)
-
         # Start cursor position subscriber
         self.cursor_locator = rospy.Subscriber("/robot_math/cursor_position", CursorLocate, self.cursor_position_callback)
 
@@ -54,8 +68,19 @@ class CursorWallTransformation:
         self.angle_to_cursor = None
         self.dist_to_wall = None
 
+        # Threshold values for linear and angular movement before resetting cursor
+        self.lin_mvmt_threshold = 0.03
+        self.ang_mvmt_threshold = (math.pi / 32)
+
+        # Last motion update's pose
+        self.odom_pose_last_motion_update = None
+        self.tf_listener = TransformListener()
+
         # Cursor reset
         self.cursor_set = False
+
+        # Start the service
+        self.segment_service = rospy.Service("/robot_math/wall_cursor_service", Cursor, self.service_response)
 
 
     def service_response(self, r):
@@ -63,26 +88,56 @@ class CursorWallTransformation:
         Request callback method for service.
         """
 
-        # Set position on first cursor request or after a movement
-        if not self.cursor_set:
+        # Check if robot moved
+        odom_pose = self.get_cur_pose()
+        curr_x = odom_pose.pose.position.x
+        old_x = self.odom_pose_last_motion_update.pose.position.x
+        curr_y = odom_pose.pose.position.y
+        old_y = self.odom_pose_last_motion_update.pose.position.y
+        curr_yaw = get_yaw_from_pose(odom_pose.pose)
+        old_yaw = get_yaw_from_pose(self.odom_pose_last_motion_update.pose)
+
+        # If robot has moved, reset wall cursor
+        if (not self.cursor_set or 
+            abs(curr_x - old_x) > self.lin_mvmt_threshold or 
+            abs(curr_y - old_y) > self.lin_mvmt_threshold or
+            abs(curr_yaw - old_yaw) > self.ang_mvmt_threshold):
             self.reset_cursor()
             self.cursor_set = True
 
-        # Handle requests
-        elif r.request == "NEXT":
-            # Write 5 characters per line
-            if self.cur_char_pos == 5:
+        # Check if cursor being advanced
+        if r.request == "NEXT":
+            # Write 5 characters per line, after which advance to next line
+            if self.cur_char_pos < 5:
+                self.y_offset -= CURSOR_WIDTH
+            elif self.cur_char_pos == 5:
                 self.y_offset = self.new_line_y_offset
                 self.z_offset -= CURSOR_HEIGHT
                 self.cur_char_pos = 0
-            else:
-                self.y_offset -= CURSOR_WIDTH
 
-        self.cur_char_pos += 1
+            self.cur_char_pos += 1
 
         return CursorResponse(y_offset=self.y_offset,
                               z_offset=self.z_offset,
                               transform=self.transform)
+
+
+    def get_cur_pose(self):
+        """
+        Sample a single lidar scan and get current pose
+        """
+
+        p = PoseStamped(
+            header=Header(stamp=rospy.Time(0),
+                          frame_id="base_footprint"),
+            pose=Pose())
+
+        odom_pose = self.tf_listener.transformPose("/odom", p)
+
+        if not self.odom_pose_last_motion_update:
+            self.odom_pose_last_motion_update = odom_pose
+
+        return odom_pose
 
 
     def reset_cursor(self):

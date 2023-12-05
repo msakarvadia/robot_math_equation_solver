@@ -39,9 +39,6 @@ class CharacterPathGenerator:
     def __init__(self):
         rospy.init_node("robot_math_character_path_server")
 
-        # Start the service
-        self.segment_service = rospy.Service("/robot_math/character_path_service", CharacterPath, self.service_response)
-
         # Start math string subscriber service
         self.math_string_sub = rospy.Subscriber("/robot_math/math_strings", String, self.math_string_callback)
 
@@ -53,10 +50,15 @@ class CharacterPathGenerator:
         with open(dirname(dirname(__file__))+"/resources/hershey_font.json") as f:
             self.characters = load(f)
 
+        rospy.sleep(5)
+
         # Initialize service queue
         self.segment_queue = deque()
-
  
+        # Start the service
+        self.segment_service = rospy.Service("/robot_math/character_path_service", CharacterPath, self.service_response)
+       
+
     def service_response(self, request):
         """
         Request callback method for the service.

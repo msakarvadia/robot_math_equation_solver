@@ -87,6 +87,9 @@ class InverseKinematicsPlanner:
         rate = rospy.Rate(0.33)
 
         while not rospy.is_shutdown():
+            # Initialize the points
+            points = np.empty(0)
+
             # Request a character point path from server
             try:
                 path_resp = self.path_client(request=True)
