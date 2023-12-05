@@ -54,19 +54,15 @@ class RobotMathControlNode:
 
         while not rospy.is_shutdown():
 
-            self.find_cursor()
+            self.move_to("VIEWING_POS")
 
-            self.reposition("VIEWING_POS")
-
-            self.find_cursor()
+            self.adjust_for_viewing()
 
             answer = self.run_inference()
 
-            self.reposition("DRAWING_POS")
+            self.move_to("DRAWING_POS")
 
             self.drawing_pub.publish(answer)
-
-            self.reposition("VIEWING_POS")
 
             rospy.sleep(10)
 
@@ -88,9 +84,9 @@ class RobotMathControlNode:
         return str(test.process_and_predict_answer_from_cropped_images(equation))
 
 
-    def find_cursor(self):
+    def adjust_for_viewing(self):
         """
-        Rotate robot until facing the cursor location.
+        Rotate robot to position for viewing equation.
         """
 
         cmd = Twist()
@@ -118,7 +114,7 @@ class RobotMathControlNode:
         self.movement_pub.publish(cmd)
 
 
-    def reposition(self, command):
+    def move_to(self, command):
         """
         Move the robot to and from the drawing and viewing positions.
         """
