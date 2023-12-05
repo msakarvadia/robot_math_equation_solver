@@ -18,7 +18,7 @@ from robot_math_equation_solver.msg import CursorLocate
 path_prefix = os.path.dirname(__file__) 
 
 
-TARGET_BOARD_DIST = 0.3
+TARGET_DRAWING_DIST = 0.3
 TARGET_VIEWING_DIST = 0.7
 
 
@@ -139,7 +139,7 @@ class RobotMathControlNode:
 
         # Set target distance
         if command == "DRAWING_POS":
-            target_dist = TARGET_BOARD_DIST
+            target_dist = TARGET_DRAWING_DIST
         elif command == "VIEWING_POS":
             target_dist = TARGET_VIEWING_DIST
 

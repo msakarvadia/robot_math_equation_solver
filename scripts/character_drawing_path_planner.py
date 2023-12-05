@@ -25,7 +25,7 @@ PEN_LIFT = {                            # position when pen is lifted
 
 class CharacterPathGenerator:
     """
-    A ROS service which provides 3D trajectories for writing characters onto an
+    A service which provides 3D trajectories for writing characters onto an
     identified wall (using the "virtual cursor" service) in front of the robot.
 
     Upon making a request message with the boolean True, a client will receive 

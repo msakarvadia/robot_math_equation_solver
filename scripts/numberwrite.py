@@ -15,6 +15,7 @@ from robot_math_equation_solver.srv import CharacterPath
 
 def inv_kin(x, y, z):
     """
+    3DOF inverse kinematics calculation
     """
 
     # Set lengths
@@ -47,7 +48,9 @@ def inv_kin(x, y, z):
 
 class InverseKinematicsPlanner:
     """
+    Class which controls manipulator movements for writing characters on a board.
     """
+
 
     def __init__(self):
         # initialize this node
@@ -74,36 +77,11 @@ class InverseKinematicsPlanner:
         self.is_busy = False
 
 
-    def write_num_trajectory(self, points):
-        """
-        """
-
-        # Create joint moveit trajectory
-        trajectory = RobotTrajectory()
-        trajectory.joint_trajectory.joint_names = self.move_group_arm.get_active_joints()
-
-        # Move to start point
-        start = points[0]
-        t1, t2, t3 = inv_kin(start[0], start[1], start[2])
-        self.move_group_arm.go([t1, t2, t3, 0.0], wait=True)
-        rospy.sleep(5)
-
-        # Create joint trajectory using inverse kinematics
-        time_increment = 0.01
-        for i, point in enumerate(points):
-            t1, t2, t3 = inv_kin(point[0], point[1], point[2])
-            point = JointTrajectoryPoint()
-            point.positions = [t1, t2, t3, 0.0]
-            point.time_from_start = rospy.Duration(i * time_increment)
-            trajectory.joint_trajectory.points.append(point)
-
-        # Execute trajectory
-        self.move_group_arm.execute(trajectory, wait=True)
-        rospy.sleep(time_increment * len(points) + 7)
-
-
     def run(self):
         """
+        Method which runs the inverse kinematics node. It waits for processed
+        character paths from the character path server and notifies other nodes
+        when the arm is executing a movement.
         """
 
         rate = rospy.Rate(0.33)
@@ -130,6 +108,35 @@ class InverseKinematicsPlanner:
                 self.is_busy = False
 
             rate.sleep()
+
+
+    def write_num_trajectory(self, points):
+        """
+        Method which creates and executes a joint trajectory for a character path.
+        """
+
+        # Create moveit joint trajectory
+        trajectory = RobotTrajectory()
+        trajectory.joint_trajectory.joint_names = self.move_group_arm.get_active_joints()
+
+        # Move to start point
+        start = points[0]
+        t1, t2, t3 = inv_kin(start[0], start[1], start[2])
+        self.move_group_arm.go([t1, t2, t3, 0.0], wait=True)
+        rospy.sleep(5)
+
+        # Create joint trajectory using inverse kinematics
+        time_increment = 0.01
+        for i, point in enumerate(points):
+            t1, t2, t3 = inv_kin(point[0], point[1], point[2])
+            point = JointTrajectoryPoint()
+            point.positions = [t1, t2, t3, 0.0]
+            point.time_from_start = rospy.Duration(i * time_increment)
+            trajectory.joint_trajectory.points.append(point)
+
+        # Execute trajectory
+        self.move_group_arm.execute(trajectory, wait=True)
+        rospy.sleep(time_increment * len(points) + 7)
 
 
 if __name__ == "__main__":

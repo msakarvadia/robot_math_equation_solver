@@ -26,7 +26,7 @@ CAMERA_ANGLE_R = -0.1919
 
 class CursorWallTransformation:
     """
-    A ROS service which tracks the current location of the "virtual wall cursor".
+    A service which tracks the current location of the "virtual wall cursor".
 
     Upon making a "GET" request, clients will receive the current cursor 
     location and associated transformation matrix to write 2D character paths onto
@@ -150,7 +150,7 @@ class CursorWallTransformation:
     def cursor_position_callback(self, cursor):
         """
         Callback method which updates the angle to the cursor based on the
-        computer vision node tracking it.
+        cursor position publisher.
         """
 
         # Calculate hand-eye angle mapping
