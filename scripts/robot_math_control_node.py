@@ -40,15 +40,11 @@ class RobotMathControlNode:
         self.cursor_locator = rospy.Subscriber("/robot_math/cursor_position", CursorLocate, self.cursor_position_callback) 
         self.cursor_msg = CursorLocate(cursor_loc=-1,image_width=0)
 
+        # Set up vision
         self.bridge = cv_bridge.CvBridge()
 
-        # subscribe to the robot's RGB camera data stream
-        # self.image_sub = rospy.Subscriber('camera/rgb/image_raw', Image, self.image_callback)
-
-        # self.bridge = cv_bridge.CvBridge()
-
-
-    # def image_callback(self, msg):
+        # Wait for character path service
+        rospy.wait_for_service("/robot_math/character_path_service")
 
 
     def run(self):
@@ -58,31 +54,38 @@ class RobotMathControlNode:
 
         while not rospy.is_shutdown():
 
-            #self.find_cursor()
+            self.find_cursor()
 
-            #self.reposition("VIEWING_POS")
+            self.reposition("VIEWING_POS")
 
-            #self.find_cursor()
+            self.find_cursor()
 
-            # Sample a single lidar scan 
-            # img = None
-            # while img is None:
-            #     img = rospy.wait_for_message("camera/rgb/image_raw", Image, timeout=1)
+            answer = self.run_inference()
 
-            # img = self.bridge.imgmsg_to_cv2(img,desired_encoding='bgr8')
-            # cv2.imwrite(path_prefix + "/data/equation.jpg", img)
-            
-            # equation = test.equation_from_image(path_prefix + "/data/equation.jpg")
+            self.reposition("DRAWING_POS")
 
-            # answer = test.process_and_predict_answer_from_cropped_images(equation)
+            self.drawing_pub.publish(answer)
 
-            #self.reposition("DRAWING_POS")
-
-            #self.drawing_pub.publish(str(answer))
-
-            #self.reposition("VIEWING_POS")
+            self.reposition("VIEWING_POS")
 
             rospy.sleep(10)
+
+
+    def run_inference(self):
+        """
+        """
+
+        # Sample image from camera
+        img = None
+        while img is None:
+            img = rospy.wait_for_message("camera/rgb/image_raw", Image, timeout=1)
+        img = self.bridge.imgmsg_to_cv2(img,desired_encoding='bgr8')
+
+        # Write image to data directory and run inference on it
+        cv2.imwrite(path_prefix + "/data/equation.jpg", img)
+        equation = test.equation_from_image(path_prefix + "/data/equation.jpg")
+
+        return str(test.process_and_predict_answer_from_cropped_images(equation))
 
 
     def find_cursor(self):
