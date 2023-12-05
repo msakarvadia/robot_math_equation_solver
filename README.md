@@ -37,9 +37,16 @@ All of the scripts are in the `scripts` subdir.
 
 #### Inverse Kinematics
 
+# TODO
+
 ### ROS Node Diagram
 
+# TODO
+
 ### Execution
+
+- Preprocessing data+training CNN: `python preprocess_data.py`, `python train.py`
+- TODO: how to execute the rest of the live inference/IK
 
 ### Challenges
 
