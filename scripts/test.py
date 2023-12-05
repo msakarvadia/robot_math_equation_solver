@@ -8,11 +8,12 @@ import rospy
 import os
 from sensor_msgs.msg import Image
 
+PATH= "/home/ayang5/catkin_ws/src/intro_robo/robot_math_equation_solver/scripts/results/model.pth"
+
 #path_prefix = os.path.dirname(__file__) 
 
 network = Net()
 #PATH = path_prefix + '/results/model.pth'
-PATH= "/home/ayang5/catkin_ws/src/intro_robo/robot_math_equation_solver/scripts/results/model.pth"
 network.load_state_dict(torch.load(PATH))
 network.eval()
 
@@ -45,13 +46,14 @@ def equation_from_image(img):
     image_extract= cv2.imread(img, cv2.IMREAD_GRAYSCALE)
     image_extract= cv2.medianBlur(image_extract, 7)
     #image_extract= cv2.bilateralFilter(image_extract,9,75,75)
-    image_extract= cv2.blur(image_extract, (10, 10)) #modify kernel value if needed
+    image_extract= cv2.blur(image_extract, (8, 8)) #modify kernel value if needed
 
     #modify second variable if binarized image has too much noise from whiteboard
     #thresh_binary_inv used because analyzed equation needs to be white with black bg
     #black whiteboard marker will work best and guarantee the most success
     image_binary= cv2.threshold(image_extract, 115, 255, cv2.THRESH_BINARY_INV)
     image = image_binary[1]
+    image= cv2.copyMakeBorder(image, 10, 10, 0, 10, cv2.BORDER_CONSTANT, value=[0, 0, 0]) 
     preview_processing("check the image", image)
 
     #get contours
@@ -69,7 +71,7 @@ def equation_from_image(img):
        #contour_curves[idx]= cv2.approxPolyDP(cntr, 3, True)
        x, y, w, h= cv2.boundingRect(image_contours[idx])
        image_cropped = image[ y-buffer:y+h+buffer, x-buffer:x+w+buffer]
-       if image_cropped.shape[0] != 0 and (image_cropped.shape[0]>= 50 or image_cropped.shape[1]>= 50): #previously 350
+       if image_cropped.shape[0] != 0 and (image_cropped.shape[0]>= 60 or image_cropped.shape[1]>= 60): #previously 350
         bounding_coords.append(boundCorners(x, y, w, h))
         image_cropped = np.pad(image_cropped, 30)
         preview_processing("check the image", image_cropped)
