@@ -12,24 +12,24 @@ from std_msgs.msg import String
 from robot_math_equation_solver.srv import CharacterPath, CharacterPathResponse, Cursor
 
 
-# Scaling and offset configuration
-PATH_RESOLUTION = 0.001                     # interpolation along path
-CHARACTER_SCALING = 0.002                   # characters set to 0.04m wide
-# PEN_OFFSET = 0.006                        # the pen is about 0.07m long
-PEN_OFFSET = 0.032                         # the pen is about 0.07m long
-PEN_LIFT = {                                # pen lift offsets
-    "x": -0.05,
-    "y": -1 * 10 * CHARACTER_SCALING, 
-    "z": 10 * CHARACTER_SCALING,
+LIDAR_OFFSET = 0.032                    # lidar is offset from manipulator frame
+CHAR_PATH_RESOLUTION = 0.001            # interpolation resolution in m
+CHAR_SCALE = 0.002                      # characters set to 0.04m wide (0.002 * 20)
+PEN_LIFT = {                            # position when pen is lifted
+    "x": -0.03,
+    "y": -1 * 10 * CHAR_SCALE, 
+    "z": 10 * CHAR_SCALE,
 }
 
 
 def interpolate_path(points_array, resolution):
     """
-    Helper function to linearly interpolate character paths. Array passed is a 
-    numpy array and resolution is the length traveled along path before creating
-    a new point.
+    Helper function to interpolate character paths. Array passed is a numpy 
+    array and resolution is the length traveled along path before creating a new 
+    point.
     """
+
+    resolution = CHAR_PATH_RESOLUTION
 
     # Calculate vectors between points and their magnitudes
     diff_vecs = np.diff(points_array, axis=0)
@@ -62,7 +62,7 @@ def interpolate_path(points_array, resolution):
 def y_rotate_hack(char_path, rad):
     """
     Helper function hack to rotate character path about the y axis, when wall is
-    not completely vertical
+    not completely vertical.
     """
     rotation = np.array([[math.cos(rad), 0, -1 * math.sin(rad), 0],
                         [0, 1, 0, 0],
@@ -137,15 +137,15 @@ class CharacterPathGenerator:
                 continue
 
             # Get current cursor location
-            cursor_loc = self.advance_cursor_client()
-            if cursor_loc is None:
+            cursor = self.get_cursor()
+            if cursor is None:
                 continue
 
             # Add the cursor offset and calculate wall transformation
             char_path = y_rotate_hack(base_path, 0.3)
             #char_path = base_path
-            char_path += np.array([0, cursor_loc.y_offset, cursor_loc.z_offset, 1])
-            transform = np.array(cursor_loc.transform).reshape(4, 4)
+            char_path += np.array([0, cursor.y_offset, cursor.z_offset, 1])
+            transform = np.array(cursor.transform).reshape(4, 4)
             char_path = np.dot(transform, np.transpose(char_path)).transpose()
 
             # Enqueue flattened list of 3D points for inverse kinematics
@@ -162,43 +162,46 @@ class CharacterPathGenerator:
         char_path = np.empty([])
 
         if self.characters.get(char) is not None:
-            # Get flattened 2D character path points array
+            # Get flattened character path points
             flattened_char_2d = self.characters[char][1]
 
             # Initialize 4D point array
             char_path = np.zeros((len(flattened_char_2d) // 2, 4))
 
-            # Populate the array and scale the movements
+            # Populate 4D array with 2D character path adding pen lift dimension
             for i, coord in enumerate(flattened_char_2d):
 
+                # Scale coordinates and check if pen lift (-1, -1)
                 if i % 2 == 0:
+                    # Set x and y
                     if coord == -1:
-                        char_path[i//2][0] = PEN_OFFSET + PEN_LIFT["x"]
+                        char_path[i//2][0] = LIDAR_OFFSET + PEN_LIFT["x"]
                         char_path[i//2][1] = PEN_LIFT["y"]
                     else:
-                        char_path[i//2][0] = PEN_OFFSET
-                        char_path[i//2][1] = -1 * coord * CHARACTER_SCALING
+                        char_path[i//2][0] = LIDAR_OFFSET
+                        char_path[i//2][1] = -1 * coord * CHAR_SCALE
 
                 else:
+                    # Set z
                     if coord == -1:
                         char_path[(i-1)//2][2] = PEN_LIFT["z"]
                     else:
-                        char_path[(i-1)//2][2] = coord * CHARACTER_SCALING
+                        char_path[(i-1)//2][2] = coord * CHAR_SCALE
 
         # Return an interpolated path
-        return interpolate_path(char_path, PATH_RESOLUTION)
+        return interpolate_path(char_path)
 
 
-    def advance_cursor_client(self):
+    def get_cursor(self):
         """
-        Cursor service client method which advances the virtual cursor and
-        retrieves its updated location along with the associated transformation 
-        matrix.
+        Method which advances the cursor location and retrieves the associated 
+        wall projection matrix.
         """
 
         try:
             resp = self.advance_cursor(request="NEXT")
             return resp
+
         except rospy.ServiceException as e:
             print("Service call failed: %s"%e)
 

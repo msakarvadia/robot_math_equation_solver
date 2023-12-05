@@ -4,9 +4,8 @@ import math
 import subprocess
 
 import numpy as np
-
-import rospy
 import moveit_commander
+import rospy
 from moveit_msgs.msg import RobotTrajectory
 from std_msgs.msg import Bool
 from trajectory_msgs.msg import JointTrajectoryPoint

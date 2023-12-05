@@ -35,9 +35,11 @@ class RobotMathControlNode:
         # Start robot movements publisher
         self.movement_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10, latch=True)
 
-        # Start drawing movements publisher and subscriber
+        # Start drawing movements publisher
         self.drawing_pub = rospy.Publisher("/robot_math/math_strings", String, queue_size=10, latch=True)
-        self.drawing_sub = rospy.Subscriber("/robot_math/manipulator_busy", Bool, self.manipulator_callback)
+
+        # Start manipulator subscriber
+        self.manipulator_sub = rospy.Subscriber("/robot_math/manipulator_busy", Bool, self.manipulator_callback)
         self.manipulator_busy = False
         
         # Start cursor locator subscriber
@@ -46,9 +48,6 @@ class RobotMathControlNode:
 
         # Set up vision
         self.bridge = cv_bridge.CvBridge()
-
-        # Wait for character path service
-        rospy.wait_for_service("/robot_math/character_path_service")
 
 
     def run(self):

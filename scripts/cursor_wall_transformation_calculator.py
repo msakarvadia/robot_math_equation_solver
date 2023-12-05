@@ -14,10 +14,10 @@ from robot_math_utils import LidarSampler
 # Set debug mode
 DEBUG = True
 
-# Constants for initialization of cursor
+# Constants for cursor positioning and size
 START_HEIGHT = 0.37
-CHAR_WIDTH = 0.025
-CHAR_HEIGHT = 0.05
+CURSOR_WIDTH = 0.025
+CURSOR_HEIGHT = 0.05
 
 # Set calibration for manipulator-camera operation
 CAMERA_ANGLE_L = 0.2792
@@ -73,10 +73,10 @@ class CursorWallTransformation:
             # Write 5 characters per line
             if self.cur_char_pos == 5:
                 self.y_offset = self.new_line_y_offset
-                self.z_offset -= CHAR_HEIGHT
+                self.z_offset -= CURSOR_HEIGHT
                 self.cur_char_pos = 0
             else:
-                self.y_offset -= CHAR_WIDTH
+                self.y_offset -= CURSOR_WIDTH
 
         self.cur_char_pos += 1
 
