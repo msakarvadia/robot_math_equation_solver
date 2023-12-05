@@ -66,6 +66,7 @@ class CursorWallTransformation:
         self.cur_char_pos = 0
         self.transform = []
         self.angle_to_cursor = None
+
         self.dist_to_wall = None
 
         # Threshold values for linear and angular movement before resetting cursor
@@ -214,7 +215,7 @@ class CursorWallTransformation:
         else:
             angle_from_left_edge = ((abs(CAMERA_ANGLE_L) + abs(CAMERA_ANGLE_R)) 
                                     * cursor.cursor_loc / cursor.image_width)
-            if angle_from_left_edge != 0:
+            if angle_from_left_edge > 0:
                 self.angle_to_cursor = CAMERA_ANGLE_L - angle_from_left_edge
 
 
