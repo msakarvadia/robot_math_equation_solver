@@ -44,9 +44,10 @@ def equation_from_image(img):
     #get image binary. first convert image to grayscale.
     #blur image a little to help get rid of noise
     image_extract= cv2.imread(img, cv2.IMREAD_GRAYSCALE)
-    image_extract= cv2.medianBlur(image_extract, 7)
-    #image_extract= cv2.bilateralFilter(image_extract,9,75,75)
-    image_extract= cv2.blur(image_extract, (8, 8)) #modify kernel value if needed
+    image_extract= cv2.medianBlur(image_extract, 1)
+    image_extract= cv2.bilateralFilter(image_extract,9,75,75)
+    image_extract= cv2.blur(image_extract, (2, 2)) #modify kernel value if needed
+    preview_processing("check the image", image_extract)
 
     #modify second variable if binarized image has too much noise from whiteboard
     #thresh_binary_inv used because analyzed equation needs to be white with black bg
@@ -210,23 +211,6 @@ def check_equation(eq):
 
     return eq
 
-"""#defining node for receiving images from ros camera
-def img_callback(msg):
-    # converts the incoming ROS message to OpenCV format and HSV 
-    img= bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
-    hsv_img= cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-
-    #cropped_images = equation_from_image("test.jpeg")
-    cropped_images = equation_from_image(hsv_img)
-    answer = process_and_predict_answer_from_cropped_images(cropped_images)
-
-
-rospy.init_node('receive_image_from_cam')
-rospy.Subscriber('camera/rgb/image_raw', Image, img_callback)
-#rospy.Publisher('/robot_math/character_path_service', answer, queue_size= 10)
-
-rospy.spin()"""
-
 """#processing test images
 cropped_images = equation_from_image("IMG_1686.jpg")
 answer = process_and_predict_answer_from_cropped_images(cropped_images)"""
@@ -237,9 +221,20 @@ answer = process_and_predict_answer_from_cropped_images(cropped_images)
 cropped_images = equation_from_image("IMG_1688.jpeg")
 answer = process_and_predict_answer_from_cropped_images(cropped_images)"""
 
-cropped_images = equation_from_image("IMG_1752.jpeg")
+"""cropped_images = equation_from_image("IMG_1752.jpeg")
+answer = process_and_predict_answer_from_cropped_images(cropped_images)"""
+
+"""cropped_images = equation_from_image("example_1.png")
+answer = process_and_predict_answer_from_cropped_images(cropped_images)"""
+
+cropped_images = equation_from_image("example_2.png")
 answer = process_and_predict_answer_from_cropped_images(cropped_images)
 
+"""cropped_images = equation_from_image("example_3.png")
+answer = process_and_predict_answer_from_cropped_images(cropped_images)"""
 
+cropped_images = equation_from_image("example_4.png")
+answer = process_and_predict_answer_from_cropped_images(cropped_images)
 
-#TODO "answer" is what need to be published to the topics that communicates with the arm
+cropped_images = equation_from_image("example_9.png")
+answer = process_and_predict_answer_from_cropped_images(cropped_images)
