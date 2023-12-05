@@ -10,6 +10,7 @@ import rospy
 from std_msgs.msg import String
 
 from robot_math_equation_solver.srv import CharacterPath, CharacterPathResponse, Cursor
+from robot_math_utils import interpolate_path, y_rotate_hack
 
 
 LIDAR_OFFSET = 0.032                    # lidar is offset from manipulator frame
@@ -20,58 +21,6 @@ PEN_LIFT = {                            # position when pen is lifted
     "y": -1 * 10 * CHAR_SCALE, 
     "z": 10 * CHAR_SCALE,
 }
-
-
-def interpolate_path(points_array, resolution):
-    """
-    Helper function to interpolate character paths. Array passed is a numpy 
-    array and resolution is the length traveled along path before creating a new 
-    point.
-    """
-
-    resolution = CHAR_PATH_RESOLUTION
-
-    # Calculate vectors between points and their magnitudes
-    diff_vecs = np.diff(points_array, axis=0)
-    magnitudes = np.linalg.norm(diff_vecs, axis=1, keepdims=True)
-
-    # Calculate number of steps between each point and single step vector
-    num_steps = (magnitudes / resolution).astype(int)
-    step_vec = diff_vecs * (resolution / magnitudes)
-
-    # Create new points array to fill in
-    interpolated_array = np.empty([points_array.shape[0] + np.sum(num_steps), 
-                                   points_array.shape[1]])
-
-    # Fill in the points
-    pos = 0
-    for i, start_point in enumerate(points_array):
-        interpolated_array[pos] = start_point
-        pos += 1
-        cum_step_point = np.zeros([1, points_array.shape[1]])
-        if i < len(points_array) - 1:
-            # Step from start point
-            for _ in range(num_steps[i][0]):
-                cum_step_point += step_vec[i]
-                interpolated_array[pos] = start_point + cum_step_point
-                pos += 1
-    
-    return interpolated_array 
-
-
-def y_rotate_hack(char_path, rad):
-    """
-    Helper function hack to rotate character path about the y axis, when wall is
-    not completely vertical.
-    """
-    rotation = np.array([[math.cos(rad), 0, -1 * math.sin(rad), 0],
-                        [0, 1, 0, 0],
-                        [math.sin(rad), 0, math.cos(rad), 0],
-                        [0, 0, 0, 0]])
-
-    rotated_points = np.dot(rotation, np.transpose(char_path)).transpose()
-    
-    return rotated_points
 
 
 class CharacterPathGenerator:
@@ -189,7 +138,7 @@ class CharacterPathGenerator:
                         char_path[(i-1)//2][2] = coord * CHAR_SCALE
 
         # Return an interpolated path
-        return interpolate_path(char_path)
+        return interpolate_path(char_path, CHAR_PATH_RESOLUTION)
 
 
     def get_cursor(self):
