@@ -130,7 +130,6 @@ class CharacterPathGenerator:
                     else:
                         char_path[i//2][0] = LIDAR_OFFSET
                         char_path[i//2][1] = -1 * coord * CHAR_SCALE
-
                 else:
                     # Set z
                     if coord == -1:
