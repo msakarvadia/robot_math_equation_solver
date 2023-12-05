@@ -46,7 +46,8 @@ All of the scripts are in the `scripts` subdir.
 ### Execution
 
 - Preprocessing data+training CNN: `python preprocess_data.py`, `python train.py`
-- TODO: how to execute the rest of the live inference/IK
+#TODO
+how to execute the rest of the live inference/IK
 
 ### Challenges
 
