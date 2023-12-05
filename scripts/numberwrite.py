@@ -4,10 +4,10 @@ import math
 import subprocess
 
 import numpy as np
-
-import rospy
 import moveit_commander
+import rospy
 from moveit_msgs.msg import RobotTrajectory
+from std_msgs.msg import Bool
 from trajectory_msgs.msg import JointTrajectoryPoint
 
 from robot_math_equation_solver.srv import CharacterPath
@@ -15,13 +15,13 @@ from robot_math_equation_solver.srv import CharacterPath
 
 def inv_kin(x, y, z):
     """
+    3DOF inverse kinematics calculation
     """
 
     # Set lengths
-    l1 = 0.077 + 0.141 - 0.03       # arm-base + turtlebot height - lidar height
-    l2 = 0.130                      # upper arm length 
-    #l3 = 0.124 + 0.126 + 0.1       # forearm length + gripper
-    l3 = 0.124 + 0.126 + 0.185       # forearm length + gripper
+    l1 = 0.077 + 0.141 - 0.03        # arm-base + turtlebot height - lidar height
+    l2 = 0.130                       # upper arm length 
+    l3 = 0.124 + 0.126 + 0.185       # forearm length + gripper + pen
 
     # Calculate intermediary values
     r = math.sqrt(x**2 + (z - l1)**2)
@@ -48,7 +48,9 @@ def inv_kin(x, y, z):
 
 class InverseKinematicsPlanner:
     """
+    Class which controls manipulator movements for writing characters on a board.
     """
+
 
     def __init__(self):
         # initialize this node
@@ -70,12 +72,53 @@ class InverseKinematicsPlanner:
         rospy.wait_for_service("/robot_math/character_path_service")
         self.path_client = rospy.ServiceProxy("/robot_math/character_path_service", CharacterPath)
 
+        # Start publisher for signalling finish of manipulator movements
+        self.is_busy_pub = rospy.Publisher("/robot_math/manipulator_busy", Bool, queue_size=10, latch=True)
+        self.is_busy = False
+
+
+    def run(self):
+        """
+        Method which runs the inverse kinematics node. It waits for processed
+        character paths from the character path server and notifies other nodes
+        when the arm is executing a movement.
+        """
+
+        rate = rospy.Rate(0.33)
+
+        while not rospy.is_shutdown():
+            # Initialize the points
+            points = np.empty(0)
+
+            # Request a character point path from server
+            try:
+                path_resp = self.path_client(request=True)
+                flattened_3D_array = path_resp.point_path
+                points = np.array(flattened_3D_array).reshape(len(flattened_3D_array) // 3, 3)
+
+            except rospy.ServiceException as e:
+                print("Service call failed: %s"%e)
+
+            # If server not empty, write the character and report manipulator busy
+            if points.size > 0:
+                if self.is_busy == False:
+                    self.is_busy_pub.publish(True)
+                    self.is_busy = True
+                self.write_num_trajectory(points)
+
+            elif self.is_busy == True:
+                self.is_busy_pub.publish(False)
+                self.is_busy = False
+
+            rate.sleep()
+
 
     def write_num_trajectory(self, points):
         """
+        Method which creates and executes a joint trajectory for a character path.
         """
 
-        # Create joint moveit trajectory
+        # Create moveit joint trajectory
         trajectory = RobotTrajectory()
         trajectory.joint_trajectory.joint_names = self.move_group_arm.get_active_joints()
 
@@ -96,30 +139,7 @@ class InverseKinematicsPlanner:
 
         # Execute trajectory
         self.move_group_arm.execute(trajectory, wait=True)
-        rospy.sleep(time_increment * len(points) + 5)
-
-
-    def run(self):
-        """
-        """
-
-        rate = rospy.Rate(0.33)
-
-        while not rospy.is_shutdown():
-            # Request a character point path from server
-            try:
-                path_resp = self.path_client(request=True)
-                flattened_3D_array = path_resp.point_path
-                points = np.array(flattened_3D_array).reshape(len(flattened_3D_array) // 3, 3)
-
-            except rospy.ServiceException as e:
-                print("Service call failed: %s"%e)
-
-            # If server not empty, write the character
-            if points.size > 0:
-                self.write_num_trajectory(points)
-
-            rate.sleep()
+        rospy.sleep(time_increment * len(points) + 7)
 
 
 if __name__ == "__main__":

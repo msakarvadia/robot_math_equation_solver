@@ -2,12 +2,12 @@
 
 import os
 
-import rospy
 import cv2, cv_bridge
 import numpy as np
-from std_msgs.msg import String
-from geometry_msgs.msg import Twist, Vector3
-from sensor_msgs.msg import LaserScan, Image
+import rospy
+from geometry_msgs.msg import Twist
+from sensor_msgs.msg import Image
+from std_msgs.msg import String, Bool
 
 import test
 from robot_math_utils import LidarSampler
@@ -18,12 +18,14 @@ from robot_math_equation_solver.msg import CursorLocate
 path_prefix = os.path.dirname(__file__) 
 
 
-TARGET_BOARD_DIST = 0.3
-TARGET_VIEWING_DIST = 0.8
+TARGET_DRAWING_DIST = 0.3
+TARGET_VIEWING_DIST = 0.7
 
 
 class RobotMathControlNode:
     """
+    Represents central control of the math solving process. Controls movement
+    to and from board, solving of math equation, and writing the answer.
     """
 
 
@@ -35,20 +37,17 @@ class RobotMathControlNode:
 
         # Start drawing movements publisher
         self.drawing_pub = rospy.Publisher("/robot_math/math_strings", String, queue_size=10, latch=True)
+
+        # Start manipulator subscriber
+        self.manipulator_sub = rospy.Subscriber("/robot_math/manipulator_busy", Bool, self.manipulator_callback)
+        self.manipulator_busy = False
         
         # Start cursor locator subscriber
         self.cursor_locator = rospy.Subscriber("/robot_math/cursor_position", CursorLocate, self.cursor_position_callback) 
         self.cursor_msg = CursorLocate(cursor_loc=-1,image_width=0)
 
+        # Set up vision
         self.bridge = cv_bridge.CvBridge()
-
-        # subscribe to the robot's RGB camera data stream
-        # self.image_sub = rospy.Subscriber('camera/rgb/image_raw', Image, self.image_callback)
-
-        # self.bridge = cv_bridge.CvBridge()
-
-
-    # def image_callback(self, msg):
 
 
     def run(self):
@@ -57,67 +56,90 @@ class RobotMathControlNode:
         """
 
         while not rospy.is_shutdown():
-            #self.find_cursor()
 
-            #self.reposition("VIEWING_POS")
+            #self.move_to("VIEWING_POS")
 
-            # Sample a single lidar scan 
-            img = None
-            while img is None:
-                img = rospy.wait_for_message("camera/rgb/image_raw", Image, timeout=1)
+            #self.adjust_for_viewing()
 
-            img = self.bridge.imgmsg_to_cv2(img,desired_encoding='bgr8')
-            cv2.imwrite(path_prefix + "/data/equation.jpg", img)
-            
-            equation = test.equation_from_image(path_prefix + "/data/equation.jpg")
+            answer = self.run_inference()
 
-            answer = test.process_and_predict_answer_from_cropped_images(equation)
+            #self.move_to("DRAWING_POS")
 
-            #self.reposition("DRAWING_POS")
+            self.draw_answer(answer)
 
-            self.drawing_pub.publish(str(answer))
-
-            #self.reposition("VIEWING_POS")
-
-            rospy.sleep(40)
+            rospy.sleep(10)
 
 
-    def find_cursor(self):
+    def run_inference(self):
         """
-        Rotate robot until facing the cursor location.
+        Solve the math equation using trained nn.
         """
 
-        rate = rospy.Rate(10)
+        # Sample image from camera
+        img = None
+        while img is None:
+            img = rospy.wait_for_message("camera/rgb/image_raw", Image, timeout=1)
+        img = self.bridge.imgmsg_to_cv2(img,desired_encoding='bgr8')
+
+        # Write image to data directory and run inference on it
+        cv2.imwrite(path_prefix + "/data/equation.jpg", img)
+        equation = test.equation_from_image(path_prefix + "/data/equation.jpg")
+
+        return str(test.process_and_predict_answer_from_cropped_images(equation))
+
+
+    def draw_answer(self, answer):
+        """
+        Draw answer using inverse kinematics.
+        """
+        
+        self.manipulator_busy = True 
+
+        self.drawing_pub.publish(answer)
+
+        rate = rospy.Rate(2)
+        while self.manipulator_busy == True:
+            rate.sleep()
+
+
+    def adjust_for_viewing(self):
+        """
+        Rotate robot to position for viewing equation.
+        """
 
         cmd = Twist()
         cmd.linear.x = 0
 
-        diff_adj = -1
+        # Initialize orientation
         cursor = self.cursor_msg
+        diff_adj = (cursor.image_width * 2/3) - cursor.cursor_loc 
+        rate = rospy.Rate(10)
 
-        # Rotate until cursor is centered in front of robot
-        while cursor.cursor_loc == -1 or diff_adj > 5 :
+        # Rotate until cursor is 2/3 from the left side of the robots image feed
+        while cursor.cursor_loc == -1 or diff_adj > 10 :
             cursor = self.cursor_msg
 
             if cursor.cursor_loc != -1:
-                diff_adj = (cursor.image_width / 2) - cursor.cursor_loc 
-                cmd.angular.z = min(0.001 * diff_adj, 0.2)
+                diff_adj = (cursor.image_width * 2/3) - cursor.cursor_loc 
+                cmd.angular.z = min(0.001 * diff_adj, 0.1)
             else:
-                cmd.angular.z = 0.2
+                cmd.angular.z = 0.1
 
             self.movement_pub.publish(cmd)
             rate.sleep()
-    
+        
+        cmd.angular.z = 0.0
+        self.movement_pub.publish(cmd)
 
-    def reposition(self, command):
+
+    def move_to(self, command):
         """
         Move the robot to and from the drawing and viewing positions.
         """
 
-        rate = rospy.Rate(10)
-
+        # Set target distance
         if command == "DRAWING_POS":
-            target_dist = TARGET_BOARD_DIST
+            target_dist = TARGET_DRAWING_DIST
         elif command == "VIEWING_POS":
             target_dist = TARGET_VIEWING_DIST
 
@@ -125,10 +147,13 @@ class RobotMathControlNode:
         front_avg_dist = 999
 
         # Use proportional control to move to position
+        rate = rospy.Rate(10)
         while abs(front_avg_dist - target_dist) > 0.05:
             # Compare distance to board and target
             front_scan, _ = LidarSampler.lidar_front()
             front_avg_dist = np.mean(front_scan)
+
+            # Set direction of travel relative to target distance
             if front_avg_dist - target_dist > 0:
                 direction = 1
             else:
@@ -136,14 +161,21 @@ class RobotMathControlNode:
 
             # Adjust orientation to cursor
             cursor = self.cursor_msg
-            diff_adj = (cursor.image_width / 2) - cursor.cursor_loc 
+            if cursor.cursor_loc != -1:
+                diff_adj = (cursor.image_width / 2) - cursor.cursor_loc 
+            else:
+                diff_adj = 0.0
 
-            # Publish movement command
-            cmd.linear.x = direction * 0.1 * min(front_avg_dist - target_dist, 1)
+            # Publish movement command using proportional control
+            cmd.linear.x = direction * 0.2 * min(abs(front_avg_dist - target_dist), 1)
             cmd.angular.z = direction * 0.001 * diff_adj
             self.movement_pub.publish(cmd)
 
             rate.sleep()
+        
+        cmd.linear.x = 0.0
+        cmd.angular.z = 0.0
+        self.movement_pub.publish(cmd)
  
 
     def cursor_position_callback(self, cursor):
@@ -151,7 +183,14 @@ class RobotMathControlNode:
         Callback method for positioning the cursor.
         """
 
-        self.cursor_locator = cursor 
+        self.cursor_msg = cursor 
+    
+
+    def manipulator_callback(self, is_busy):
+        """
+        Callback method for manipulator movements.
+        """
+        self.manipulator_busy = is_busy.data
 
 
 if __name__ == "__main__":
