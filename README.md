@@ -27,6 +27,14 @@ All of the scripts are in the `scripts` subdir.
 - How to run: `python train.py`
 - The above training script saves the trained neural network checkpoint in `results/model.pth`
 
+#### Doing inference using Robot Camera
+
+- A test example is viewed by running `python inference.py`
+- The actual script that defines how to do inference on an image is `test.py`. This file contains two critical funcitons:
+    -  `equation_from_image`: Does inference on a camera image and retuns a dictionary of digits and their predicted classes
+    -  `process_and_predict_answer_from_cropped_images`: Allows a human to manually correct any misclassified images, evaluates the equation, returns the answer.
+- This inference is done in `robot_math_control_node.py` in the `run_inference` method of the `RobotMathControlNode` class.
+
 #### Inverse Kinematics
 
 ### ROS Node Diagram
