@@ -63,10 +63,11 @@ class CharacterPathGenerator:
         """
 
         # Respond with next enqueued path, if it exists
-        if len(self.segment_queue) == 0:
-            return CharacterPathResponse(point_path=[], dim=0)
-        elif request.request:
+        if len(self.segment_queue) != 0 and request.request:
             return CharacterPathResponse(point_path=self.segment_queue.popleft(), dim=3)
+
+        else: 
+            return CharacterPathResponse(point_path=[], dim=0)
 
 
     def math_string_callback(self, math_string):
@@ -86,15 +87,15 @@ class CharacterPathGenerator:
                 continue
 
             # Get current cursor location
-            cursor = self.get_cursor()
-            if cursor is None:
+            wall_cursor = self.get_cursor()
+            if wall_cursor is None:
                 continue
 
             # Add the cursor offset and calculate wall transformation
             char_path = y_rotate_hack(base_path, 0.3)
             #char_path = base_path
-            char_path += np.array([0, cursor.y_offset, cursor.z_offset, 1])
-            transform = np.array(cursor.transform).reshape(4, 4)
+            char_path += np.array([0, wall_cursor.y_offset, wall_cursor.z_offset, 1])
+            transform = np.array(wall_cursor.transform).reshape(4, 4)
             char_path = np.dot(transform, np.transpose(char_path)).transpose()
 
             # Enqueue flattened list of 3D points for inverse kinematics
