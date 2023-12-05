@@ -18,7 +18,14 @@ All of the scripts are in the `scripts` subdir.
 - How to run: `python preprocess_data.py`
 - This is the script that preprocesses our [Kaggle dataset](https://www.kaggle.com/datasets/xainano/handwrittenmathsymbols). It outputs the preprocessed data into `train_final.csv`.
 
+#### Define Convolutional Neural Network (CNN)
+
+- The class for our CNN model is defined in `nn.py`.
+
 #### Training CNN
+
+- How to run: `python train.py`
+- The above training script saves the trained neural network checkpoint in `results/model.pth`
 
 #### Inverse Kinematics
 
