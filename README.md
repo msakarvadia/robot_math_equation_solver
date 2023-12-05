@@ -62,4 +62,6 @@ On the writing the answer on the board we had many challenges as well: We had to
 
 ### Future Works
 
+In future works we may attempt to train a deeper and more robust computer vision model. Right now, we only used a single dataset, and as a result, our model failed to generalize to our handwritten digits at times. To overcome this we needed to allow a human to manually correct any wrongly classified digits/symbols. Additionally, we may further tune parameters related to how our robot writes the answer on the board; right now the arm is a bit shakey and with more testing/tuning we could make this better.
+
 ### Takeaways
