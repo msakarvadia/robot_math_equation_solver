@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # robot_math_equation_solver
 Use a turtlebot + arm + camera to recognize handwritten math equations and write the answer on a whiteboard
 
@@ -13,6 +14,7 @@ Execution: Describe how to run your code, e.g., step-by-step instructions on wha
 
 Challenges, Future Work, and Takeaways: These should take a similar form and structure to how you approached these in the previous projects (1 paragraph each for the challenges and future work and a few bullet points for takeaways)
 
+=======
 =======
 # Robot Math Equation Solver
 tldr:  Use a turtlebot + arm + camera to recognize handwritten math equations and write the answer on a whiteboard.
@@ -86,4 +88,6 @@ In future works we may attempt to train a deeper and more robust computer vision
 ### Takeaways
 
 When developing applications for robots, one must always be careful that the test cases actually represent the situation in which the robot will operate. In our case, for the computer vision task the images we used to train our CNN didn't completally represent all of the possibilites that the robot will actually see. Additionally, with the inverse kinematics work we debugged a lot of our work in gazebo; however, in real life, we faced the additional challenges of making a robot hold a real pen and have it apply constant pressue. Additionally, some robot applications may be able to tolerate a certain degree of uncertainty/inaccuracy. For example, in our case since we have a human checking the outputs of our CNN during every iteration we can suffice with a smaller (less accurate network). However, in a production grade environment it may not be realistic/scalable to always have a human in the loop. In these cases, it is worthwhile spending more computational power upfront training a more powerful NN to do classifications.
->>>>>>> d27087a780b39d913e3714163623db44330c42a6
+
+=======
+
