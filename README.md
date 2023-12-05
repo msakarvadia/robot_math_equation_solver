@@ -1,4 +1,4 @@
-![CV](https://github.com/msakarvadia/robot_math_equation_solver/assets/22324068/52054209-7d18-4367-bdbc-c3d81d3830e0)# Robot Math Equation Solver
+# Robot Math Equation Solver
 tldr:  Use a turtlebot + arm + camera to recognize handwritten math equations and write the answer on a whiteboard.
 
 ### Project Description
