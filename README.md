@@ -34,6 +34,7 @@ All of the scripts are in the `scripts` subdir.
     -  `equation_from_image`: Does inference on a camera image and retuns a dictionary of digits and their predicted classes
     -  `process_and_predict_answer_from_cropped_images`: Allows a human to manually correct any misclassified images, evaluates the equation, returns the answer.
 - This inference is done in `robot_math_control_node.py` in the `run_inference` method of the `RobotMathControlNode` class.
+- Note that prior to doing inference on an image of an equation: the image is broken up into smaller sub-images by using the `cv2` bounding box functionalty. We draw a bounding box around all continuous curves. We had to do some trouble shooting on this end to make sure we discarded bounding boxes that were too small (aka bounding boxes that had picked up a stray spec on the whiteboard).
 
 #### Inverse Kinematics
 
@@ -50,6 +51,14 @@ All of the scripts are in the `scripts` subdir.
 how to execute the rest of the live inference/IK
 
 ### Challenges
+
+On the computer vision side we had many challenges operationalizing use of the trained NN on actual hand written whiteboard equations. This is because the equations we were writing on the board were "out of distribution" compared to the images we trained the neural network with. Whiteboards have shiny reflective surfaces: this means that there are shiny marks, shadows, leftover dry erase marker stains, random specs all around our white board. These marks would accidentally be caught by a bounding box (and then the NN would attempt to classify it). We found that we had to discard any bounding boxes that were too small to over come this challenge. Additionally, the sizing of our handdrawn charecters didn't quite match that of the training set; additinally, because our bounding boxes can have varried sizes we had to uniformly pad all of our bounding boxes and transform them to the appropriate dimentions for inference. This causes our charects to look warped (which causes misclassifications). To work around this issue, we allow a human-in-the-loop approach: we allow a humany to manual check and correct all equaitons before the are evaluated for an answer.
+
+On the writing the answer on the board we had many challenges as well: We had to deal with the problem of the pen applying continuous pressure onto the whiteboard while writing. To overcome this we created a device that had a spring in it to put the pen in. This way we could have the gripper apply extra pressue to the pen and the pen could rely on the spring to help it maintain an appropriate pressue.
+
+![PXL_20231201_033412801](https://github.com/msakarvadia/robot_math_equation_solver/assets/22324068/e23cd354-c6c4-4cbf-9838-b877b3658d7d)
+![PXL_20231201_033212889](https://github.com/msakarvadia/robot_math_equation_solver/assets/22324068/7881fdeb-70a1-4639-a570-bca53d0fb670)
+
 
 ### Future Works
 
