@@ -21,7 +21,7 @@ def inv_kin(x, y, z):
     # Set lengths
     l1 = 0.077 + 0.141 - 0.03        # arm-base + turtlebot height - lidar height
     l2 = 0.130                       # upper arm length 
-    l3 = 0.124 + 0.126 + 0.185       # forearm length + gripper + pen
+    l3 = 0.124 + 0.126 + 0.19        # forearm length + gripper + pen
 
     # Calculate intermediary values
     r = math.sqrt(x**2 + (z - l1)**2)
@@ -129,7 +129,7 @@ class InverseKinematicsPlanner:
         rospy.sleep(5)
 
         # Create joint trajectory using inverse kinematics
-        time_increment = 0.01
+        time_increment = 0.03
         for i, point in enumerate(points):
             t1, t2, t3 = inv_kin(point[0], point[1], point[2])
             point = JointTrajectoryPoint()

@@ -13,7 +13,7 @@ from robot_math_equation_solver.srv import CharacterPath, CharacterPathResponse,
 from robot_math_utils import interpolate_path, y_rotate_hack
 
 
-LIDAR_OFFSET = 0.032                    # lidar is offset from manipulator frame
+LIDAR_OFFSET = 0.048                    # lidar is offset from manipulator frame
 CHAR_PATH_RESOLUTION = 0.001            # interpolation resolution in m
 CHAR_SCALE = 0.002                      # characters set to 0.04m wide (0.002 * 20)
 PEN_LIFT = {                            # position when pen is lifted
@@ -94,7 +94,7 @@ class CharacterPathGenerator:
                 continue
 
             # Add the cursor offset and calculate wall transformation
-            char_path = y_rotate_hack(base_path, 0.3)
+            char_path = y_rotate_hack(base_path, 0.45)
             #char_path = base_path
             char_path += np.array([0, wall_cursor.y_offset, wall_cursor.z_offset, 1])
             transform = np.array(wall_cursor.transform).reshape(4, 4)

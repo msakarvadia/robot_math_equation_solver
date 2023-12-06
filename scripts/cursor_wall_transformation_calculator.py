@@ -211,7 +211,7 @@ class CursorWallTransformation:
 
         # Calculate hand-eye angle mapping
         if DEBUG == True:
-            self.angle_to_cursor = 0.05
+            self.angle_to_cursor = 0.25
         else:
             angle_from_left_edge = ((abs(CAMERA_ANGLE_L) + abs(CAMERA_ANGLE_R)) 
                                     * cursor.cursor_loc / cursor.image_width)
