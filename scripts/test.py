@@ -8,12 +8,12 @@ import rospy
 import os
 from sensor_msgs.msg import Image
 
-PATH= "/home/ayang5/catkin_ws/src/intro_robo/robot_math_equation_solver/scripts/results/model.pth"
+#PATH= "/home/ayang5/catkin_ws/src/intro_robo/robot_math_equation_solver/scripts/results/model.pth"
 
-#path_prefix = os.path.dirname(__file__) 
+path_prefix = os.path.dirname(__file__) 
 
 network = Net()
-#PATH = path_prefix + '/results/model.pth'
+PATH = path_prefix + '/results/model.pth'
 network.load_state_dict(torch.load(PATH))
 network.eval()
 
@@ -226,15 +226,16 @@ answer = process_and_predict_answer_from_cropped_images(cropped_images)"""
 
 """cropped_images = equation_from_image("example_1.png")
 answer = process_and_predict_answer_from_cropped_images(cropped_images)"""
-
+"""
 cropped_images = equation_from_image("example_2.png")
 answer = process_and_predict_answer_from_cropped_images(cropped_images)
 
-"""cropped_images = equation_from_image("example_3.png")
-answer = process_and_predict_answer_from_cropped_images(cropped_images)"""
+cropped_images = equation_from_image("example_3.png")
+answer = process_and_predict_answer_from_cropped_images(cropped_images)
 
 cropped_images = equation_from_image("example_4.png")
 answer = process_and_predict_answer_from_cropped_images(cropped_images)
 
 cropped_images = equation_from_image("example_9.png")
 answer = process_and_predict_answer_from_cropped_images(cropped_images)
+"""
