@@ -74,10 +74,10 @@ def calc_wall_projection():
 
     # Estimate wall location
     model, _ = ransac(wall_points, 
-                        LineModelND, 
-                        min_samples=5,
-                        max_trials=100,
-                        residual_threshold=0.1)
+                      LineModelND, 
+                      min_samples=5, 
+                      max_trials=100, 
+                      residual_threshold=0.1)
     _, direction_vector = model.params
 
     # Calculate rotation
@@ -88,7 +88,7 @@ def calc_wall_projection():
     rot_vector = abs(direction_vector)
     theta = rot * math.atan2(rot_vector[0], rot_vector[1])
     rotation = np.array([[math.cos(theta), -1 * math.sin(theta)],
-                            [math.sin(theta), math.cos(theta)]])
+                         [math.sin(theta), math.cos(theta)]])
 
     # Calculate translation
     dist_to_wall = np.mean(wall_scan_dists)
@@ -122,9 +122,8 @@ def y_rotate_hack(char_path, rad):
 
 def interpolate_path(points_array, resolution):
     """
-    Utility function which interpolates character paths. Array passed is a numpy 
-    array and resolution is the length traveled along path before creating a new 
-    point.
+    Utility function which interpolates paths. Array passed is a numpy array and 
+    resolution is the length traveled along path before creating a new point.
     """
 
     # Calculate vectors between points and their magnitudes

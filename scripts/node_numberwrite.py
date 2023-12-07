@@ -52,7 +52,7 @@ class InverseKinematicsPlanner:
 
     def __init__(self):
         # initialize this node
-        rospy.init_node("robot_math_numberwrite")
+        rospy.init_node("robot_math_inverse_kinematics")
 
         # Disable allowed start tolerance for moveit
         manipulator_setup = """

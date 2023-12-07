@@ -6,7 +6,7 @@
   <!-- character path planning node -->
   <node name="robot_math_character_path_server" pkg="robot_math_equation_solver" type="node_character_path_planner.py" output="screen" />
   <!-- arm manipulator node -->
-  <node name="robot_math_numberwrite" pkg="robot_math_equation_solver" type="node_numberwrite.py" output="screen" />
+  <node name="robot_math_inverse_kinematics" pkg="robot_math_equation_solver" type="node_numberwrite.py" output="screen" />
   <!-- robot math coordinator node -->
   <node name="robot_math_central_control" pkg="robot_math_equation_solver" type="node_central_control.py" output="screen" />
 </launch>

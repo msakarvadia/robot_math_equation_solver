@@ -146,7 +146,7 @@ class RobotMathCentralControl:
         cmd = Twist()
         front_avg_dist = 999
 
-        # Use proportional control to move to position
+        # Move to position
         rate = rospy.Rate(10)
         while abs(front_avg_dist - target_dist) > 0.05:
             # Compare distance to board and target
