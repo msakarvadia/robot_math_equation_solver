@@ -2,17 +2,15 @@
 
 import math
 
-import numpy as np
 import rospy
 from geometry_msgs.msg import Pose, PoseStamped
-from skimage.measure import ransac, LineModelND
 from std_msgs.msg import Header
 from tf import TransformListener
 from tf.transformations import euler_from_quaternion
 
 from robot_math_equation_solver.srv import Cursor, CursorResponse
 from robot_math_equation_solver.msg import CursorLocate
-from robot_math_utils import LidarSampler
+from robot_math_utils import calc_wall_projection
 
 
 # Set debug mode
@@ -53,6 +51,7 @@ class CursorWallTransformation:
     character and respond with this position and associated matrix.
     """
 
+
     def __init__(self):
         rospy.init_node("robot_math_wall_cursor_server")
 
@@ -65,7 +64,7 @@ class CursorWallTransformation:
         self.new_line_y_offset = None
         self.cur_char_pos = 0
         self.transform = []
-        self.angle_to_cursor = None
+        self.angle_to_cursor = 0.25
 
         self.dist_to_wall = None
 
@@ -90,7 +89,7 @@ class CursorWallTransformation:
         """
 
         # Check if robot moved
-        odom_pose = self.get_cur_pose()
+        odom_pose = self.get_cur_robot_pose()
         curr_x = odom_pose.pose.position.x
         old_x = self.odom_pose_last_motion_update.pose.position.x
         curr_y = odom_pose.pose.position.y
@@ -123,9 +122,9 @@ class CursorWallTransformation:
                               transform=self.transform)
 
 
-    def get_cur_pose(self):
+    def get_cur_robot_pose(self):
         """
-        Sample a single lidar scan and get current pose
+        Get current robot pose from 'odom' topic.
         """
 
         p = PoseStamped(
@@ -143,70 +142,16 @@ class CursorWallTransformation:
 
     def reset_cursor(self):
         """
-        Resets the cursor based on location published by the /robot_math/cursor_locator 
+        Resets the cursor based on location published by the 'robot_math/cursor_locator' 
         topic.
         """
 
-        self.calc_wall_transformation()
+        # Reset projection to wall
+        self.transform, self.dist_to_wall = calc_wall_projection()
 
-        # Wait for initialization
-        rate = rospy.Rate(10)
-        while self.angle_to_cursor is None:
-            rate.sleep()
-
+        # Reset 'new_line' coordinate position on wall 
         self.new_line_y_offset = math.tan(self.angle_to_cursor) * self.dist_to_wall
         self.y_offset = self.new_line_y_offset
-
-
-    def calc_wall_transformation(self):
-        """
-        Method which estimates the transformation matrix for writing characters
-        onto a (flat, vertical) wall in front of the robot. It first samples the 
-        points and then uses RANSAC to estimate the walls location.
-        """
-
-        # Draw 10 lidar scans to use in estimation
-        wall_points = np.empty([0,2]) 
-        wall_scan_dists = np.empty([0,])
-        for _ in range(10):
-            # Convert readings to cartesian coordinates and stack the points
-            scan_data, angles = LidarSampler.lidar_front()
-            x = np.cos(angles) * scan_data
-            y = np.sin(angles) * scan_data
-            lidar_sample = np.column_stack((x, y))
-            wall_points = np.concatenate((wall_points, lidar_sample))
-            wall_scan_dists = np.concatenate((wall_scan_dists, scan_data))
-
-        # Estimate wall location
-        model, _ = ransac(wall_points, 
-                          LineModelND, 
-                          min_samples=5,
-                          max_trials=100,
-                          residual_threshold=0.1)
-        _, direction_vector = model.params
-
-        # Calculate rotation
-        if direction_vector[1] / direction_vector[0] < 0:
-            rot = 1
-        else:
-            rot = -1
-        rot_vector = abs(direction_vector)
-        theta = rot * math.atan2(rot_vector[0], rot_vector[1])
-        rotation = np.array([[math.cos(theta), -1 * math.sin(theta)],
-                             [math.sin(theta), math.cos(theta)]])
-
-        # Calculate translation
-        self.dist_to_wall = np.mean(wall_scan_dists)
-        translation = np.array([self.dist_to_wall, 0, 0])
-
-        # Build and flatten the matrix
-        transform = np.zeros((4, 4))
-        transform[:2, :2] = rotation
-        transform[:3, 3] = translation
-        transform[2, 2] = 1
-        transform[3, 3] = 1
-
-        self.transform = transform.flatten()
 
 
     def cursor_position_callback(self, cursor):
@@ -217,7 +162,7 @@ class CursorWallTransformation:
 
         # Calculate hand-eye angle mapping
         if DEBUG == True:
-            self.angle_to_cursor = 0.25
+            self.angle_to_cursor = 0.25 # Debug does not use tag position
         else:
             angle_from_left_edge = ((abs(CAMERA_ANGLE_L) + abs(CAMERA_ANGLE_R)) 
                                     * cursor.cursor_loc / cursor.image_width)

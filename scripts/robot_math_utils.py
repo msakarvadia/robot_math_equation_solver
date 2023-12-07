@@ -5,6 +5,7 @@ import math
 import numpy as np
 import rospy
 from sensor_msgs.msg import LaserScan
+from skimage.measure import ransac, LineModelND
 
 
 # Set lidar model
@@ -51,10 +52,77 @@ class LidarSampler:
         return scan_data, angles
 
 
+def calc_wall_projection(self):
+    """
+    Utility function that estimates the transformation matrix for projecting characters
+    (or any other points from the robot's coordinate frame) onto a (flat, vertical) 
+    wall in front of the robot. It first samples the points and then uses RANSAC 
+    to estimate the wall's location.
+    """
+
+    # Draw 10 lidar scans to use in estimation
+    wall_points = np.empty([0,2]) 
+    wall_scan_dists = np.empty([0,])
+    for _ in range(10):
+        # Convert readings to cartesian coordinates and stack the points
+        scan_data, angles = LidarSampler.lidar_front()
+        x = np.cos(angles) * scan_data
+        y = np.sin(angles) * scan_data
+        lidar_sample = np.column_stack((x, y))
+        wall_points = np.concatenate((wall_points, lidar_sample))
+        wall_scan_dists = np.concatenate((wall_scan_dists, scan_data))
+
+    # Estimate wall location
+    model, _ = ransac(wall_points, 
+                        LineModelND, 
+                        min_samples=5,
+                        max_trials=100,
+                        residual_threshold=0.1)
+    _, direction_vector = model.params
+
+    # Calculate rotation
+    if direction_vector[1] / direction_vector[0] < 0:
+        rot = 1
+    else:
+        rot = -1
+    rot_vector = abs(direction_vector)
+    theta = rot * math.atan2(rot_vector[0], rot_vector[1])
+    rotation = np.array([[math.cos(theta), -1 * math.sin(theta)],
+                            [math.sin(theta), math.cos(theta)]])
+
+    # Calculate translation
+    dist_to_wall = np.mean(wall_scan_dists)
+    translation = np.array([dist_to_wall, 0, 0])
+
+    # Build and flatten the matrix
+    transform = np.zeros((4, 4))
+    transform[:2, :2] = rotation
+    transform[:3, 3] = translation
+    transform[2, 2] = 1
+    transform[3, 3] = 1
+
+    return transform.flatten(), dist_to_wall
+
+
+def y_rotate_hack(char_path, rad):
+    """
+    Utility function used when wall is not completely vertical. It rotates
+    points on the wall about the y axis (the base of the wall).
+    """
+
+    rotation = np.array([[math.cos(rad), 0, -1 * math.sin(rad), 0],
+                        [0, 1, 0, 0],
+                        [math.sin(rad), 0, math.cos(rad), 0],
+                        [0, 0, 0, 0]])
+
+    rotated_points = np.dot(rotation, np.transpose(char_path)).transpose()
+    
+    return rotated_points
+
 
 def interpolate_path(points_array, resolution):
     """
-    Helper function to interpolate character paths. Array passed is a numpy 
+    Utility function which interpolates character paths. Array passed is a numpy 
     array and resolution is the length traveled along path before creating a new 
     point.
     """
@@ -85,18 +153,3 @@ def interpolate_path(points_array, resolution):
                 pos += 1
     
     return interpolated_array 
-
-
-def y_rotate_hack(char_path, rad):
-    """
-    Helper function hack to rotate character path about the y axis, when wall is
-    not completely vertical.
-    """
-    rotation = np.array([[math.cos(rad), 0, -1 * math.sin(rad), 0],
-                        [0, 1, 0, 0],
-                        [math.sin(rad), 0, math.cos(rad), 0],
-                        [0, 0, 0, 0]])
-
-    rotated_points = np.dot(rotation, np.transpose(char_path)).transpose()
-    
-    return rotated_points

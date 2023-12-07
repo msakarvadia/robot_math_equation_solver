@@ -22,17 +22,15 @@ def inv_kin(x, y, z):
     l1 = 0.077 + 0.141 - 0.03        # arm-base + turtlebot height - lidar height
     l2 = 0.130                       # upper arm length 
     l3 = 0.124 + 0.126 + 0.19        # forearm length + gripper + pen
-
     # Calculate intermediary values
-    r = math.sqrt(x**2 + (z - l1)**2)
-    phi1 = math.acos((l2**2 + r**2 - l3**2)/(2 * l2 * r))
-    phi2 = math.acos((l2**2 + l3**2 - r**2)/(2 * l2 * l3))
-    phi3 = math.atan2((z - l1), x)
+    c3 = (x**2 + y**2 + z**2 - (l1**2 + l2**2 + l3**2) - 2 * l1 * (z - l1)) / (2 * l2 * l3)
+    s3 = -np.sqrt(1 - c3)
 
     # Calculate theta1, theta2, theta3
     theta1 = math.atan2(y, x)
-    theta2 = phi3 + phi1
-    theta3 = phi2 - math.pi 
+    theta2 = (math.atan2((z - l1) * (math.cos(theta1) - math.sin(theta1)), (x - y)) 
+                - math.atan2((s3 * l3), (c3 * l3 + l2)))
+    theta3 = math.atan2(s3, c3)
 
     # Map model's angles to our arm's configuration
     theta2 = -1 * (theta2 - math.pi / 2)
@@ -54,7 +52,7 @@ class InverseKinematicsPlanner:
 
     def __init__(self):
         # initialize this node
-        rospy.init_node("robot_math_manipulator_movement")
+        rospy.init_node("robot_math_numberwrite")
 
         # Disable allowed start tolerance for moveit
         manipulator_setup = """
@@ -62,7 +60,9 @@ class InverseKinematicsPlanner:
         doubles:
             - {name: 'allowed_start_tolerance', value: 0.0}"
         """
-        subprocess.call(manipulator_setup, shell=True)
+        subprocess.call(manipulator_setup, shell=True, 
+                        stdout=subprocess.DEVNULL, 
+                        stderr=subprocess.STDOUT)
 
         # the interface to the group of joints making up the turtlebot3
         self.move_group_arm = moveit_commander.MoveGroupCommander("arm")
@@ -122,7 +122,7 @@ class InverseKinematicsPlanner:
         trajectory = RobotTrajectory()
         trajectory.joint_trajectory.joint_names = self.move_group_arm.get_active_joints()
 
-        # Move to start point
+        # Move to start point (always pen lift position)
         start = points[0]
         t1, t2, t3 = inv_kin(start[0], start[1], start[2])
         self.move_group_arm.go([t1, t2, t3, 0.0], wait=True)

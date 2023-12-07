@@ -22,7 +22,7 @@ TARGET_DRAWING_DIST = 0.3
 TARGET_VIEWING_DIST = 0.7
 
 
-class RobotMathControlNode:
+class RobotMathCentralControl:
     """
     Represents central control of the math solving process. Controls movement
     to and from board, solving of math equation, and writing the answer.
@@ -30,7 +30,7 @@ class RobotMathControlNode:
 
 
     def __init__(self):
-        rospy.init_node("robot_math_master_control")
+        rospy.init_node("robot_math_central_control")
 
         # Start robot movements publisher
         self.movement_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10, latch=True)
@@ -194,5 +194,5 @@ class RobotMathControlNode:
 
 
 if __name__ == "__main__":
-    node = RobotMathControlNode()
+    node = RobotMathCentralControl()
     node.run()

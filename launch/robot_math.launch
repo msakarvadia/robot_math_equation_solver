@@ -1,12 +1,12 @@
 <launch>
   <!-- cursor position node -->
-  <node name="robot_math_wall_cursor_position_publisher" pkg="robot_math_equation_solver" type="cursor_position_publisher.py" output="screen" />
+  <node name="robot_math_wall_cursor_position_publisher" pkg="robot_math_equation_solver" type="node_cursor_position_publisher.py" output="screen" />
   <!-- cursor transformation node -->
-  <node name="robot_math_wall_cursor_serverS" pkg="robot_math_equation_solver" type="cursor_wall_transformation_calculator.py" output="screen" />
+  <node name="robot_math_wall_cursor_serverS" pkg="robot_math_equation_solver" type="node_wall_transformation_calculator.py" output="screen" />
   <!-- character path planning node -->
-  <node name="robot_math_character_path_server" pkg="robot_math_equation_solver" type="character_drawing_path_planner.py" output="screen" />
+  <node name="robot_math_character_path_server" pkg="robot_math_equation_solver" type="node_character_path_planner.py" output="screen" />
   <!-- arm manipulator node -->
-  <node name="robot_math_manipulator_movement" pkg="robot_math_equation_solver" type="numberwrite.py" output="screen" />
+  <node name="robot_math_numberwrite" pkg="robot_math_equation_solver" type="node_numberwrite.py" output="screen" />
   <!-- robot math coordinator node -->
-  <node name="robot_math_master_control" pkg="robot_math_equation_solver" type="robot_math_control_node.py" output="screen" />
+  <node name="robot_math_central_control" pkg="robot_math_equation_solver" type="node_central_control.py" output="screen" />
 </launch>

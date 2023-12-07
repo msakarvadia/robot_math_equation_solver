@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import math
 from collections import deque
 from json import load
 from os.path import dirname
@@ -35,6 +34,7 @@ class CharacterPathGenerator:
     The service uses a vectorized Hershey font with a 20x21 frame to describe 
     each character.
     """
+
 
     def __init__(self):
         rospy.init_node("robot_math_character_path_server")
