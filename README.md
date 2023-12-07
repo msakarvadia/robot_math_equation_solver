@@ -128,12 +128,14 @@ And a screenshot of the terminal where the image analysis results are:
 
 On the computer vision side we had many challenges operationalizing use of the trained NN on actual hand written whiteboard equations. This is because the equations we were writing on the board were "out of distribution" compared to the images we trained the neural network with. Whiteboards have shiny reflective surfaces: this means that there are shiny marks, shadows, leftover dry erase marker stains, random specs all around our white board. These marks would accidentally be caught by a bounding box (and then the NN would attempt to classify it). We found that we had to discard any bounding boxes that were too small to over come this challenge. Additionally, the sizing of our handdrawn charecters didn't quite match that of the training set; additinally, because our bounding boxes can have varried sizes we had to uniformly pad all of our bounding boxes and transform them to the appropriate dimentions for inference. This causes our charects to look warped (which causes misclassifications). To work around this issue, we allow a human-in-the-loop approach: we allow a humany to manual check and correct all equaitons before the are evaluated for an answer.
 
-On the writing the answer on the board we had many challenges as well: We had to deal with the problem of the pen applying continuous pressure onto the whiteboard while writing. To overcome this we created a device that had a spring in it to put the pen in. This way we could have the gripper apply extra pressue to the pen and the pen could rely on the spring to help it maintain an appropriate pressue.
-
+When writing the solution to the math problem on the board, we had many challenges as well. As we debugged our inverse kinematics and character path planning we had to deal with the problem of the pen not applying consistent pressure on the whiteboard while writing. To overcome this, we created a device using a spring small tube to put the pen in. The spring helps keep the pen in contact with the board with out ruining it.
 <p align="center">
     <img src="https://github.com/msakarvadia/robot_math_equation_solver/assets/22324068/e23cd354-c6c4-4cbf-9838-b877b3658d7d" width="45%">
     <img src="https://github.com/msakarvadia/robot_math_equation_solver/assets/22324068/7881fdeb-70a1-4639-a570-bca53d0fb670" width="45%">
 </p>
+
+After we became confident with our inverse kinematics and character path planning code and the issues of maintaining consistent contact with the board still remained, we started to look for other explanations on why the quality of our writing was so sensitive to changes in setup. To help with debugging the character coordinate paths which are passed to the inverse kinematics, we created a debug world in Gazebo, and several debug scripts to visualize the exact paths with respect to a wall and the lidar scans. After testing, this helped us rule out any serious issues with our character path calculations.
+
 
 ### Future Works
 
