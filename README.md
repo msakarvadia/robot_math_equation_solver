@@ -60,6 +60,15 @@ All of the scripts are in the `scripts` subdir.
 
 #### Inverse Kinematics
 
+## Inverse Kinematics Base Algorithm:
+
+The equations we used were adapted from the paper "Design of a Three Degrees of Freedom Robotic Arm" by Madiha Farman et al. As the arms on our turtle bots have 4 degrees of freedom, we limited ours to 3, for ease of calculations, by treating the 4th joint (at the base of the gripper) as fixed. The base algorithm itself is within the `node_numberwrite.py` script and in the inv_kin() function, which accepts 3 values for x, y, and z, and outputs the joint angles for the joint 1, 2 and 3.
+
+## Inverse Kinematics Planner
+
+The inverse kinematcis planner node (within the `node_numberwrite.py` script) when run receives data from the character path server, and creates a joint trajectory within the write_num_trajectory() function. This is done by creating a start point which is inputted into the inv_kin solver, and then subsequently doing the same for all the other points that compromise the current character. The joint trajectory is then executed, allowing the arm to fulfil the movements required to trace the character on the whiteboard, within the same function.
+
+## Character Path
 # TODO
 
 ### ROS Node Diagram
