@@ -115,8 +115,9 @@ https://github.com/msakarvadia/robot_math_equation_solver/assets/68249601/2122dd
 
 And a screenshot of the terminal where the image analysis results are:
 
-<img width="720" alt="Screen Shot 2023-12-05 at 9 56 31 PM" src="https://github.com/msakarvadia/robot_math_equation_solver/assets/68249601/1fdc8751-ee25-4617-ae8e-7e0b1806aed5">
-
+<p align="center">
+    <img width="90%" alt="Screen Shot 2023-12-05 at 9 56 31 PM" src="https://github.com/msakarvadia/robot_math_equation_solver/assets/68249601/1fdc8751-ee25-4617-ae8e-7e0b1806aed5">
+</p>
 
 
 ### Challenges
@@ -125,8 +126,10 @@ On the computer vision side we had many challenges operationalizing use of the t
 
 On the writing the answer on the board we had many challenges as well: We had to deal with the problem of the pen applying continuous pressure onto the whiteboard while writing. To overcome this we created a device that had a spring in it to put the pen in. This way we could have the gripper apply extra pressue to the pen and the pen could rely on the spring to help it maintain an appropriate pressue.
 
-![PXL_20231201_033412801](https://github.com/msakarvadia/robot_math_equation_solver/assets/22324068/e23cd354-c6c4-4cbf-9838-b877b3658d7d)
-![PXL_20231201_033212889](https://github.com/msakarvadia/robot_math_equation_solver/assets/22324068/7881fdeb-70a1-4639-a570-bca53d0fb670)
+<p align="center">
+    <img src="https://github.com/msakarvadia/robot_math_equation_solver/assets/22324068/e23cd354-c6c4-4cbf-9838-b877b3658d7d" width="45%">
+    <img src="https://github.com/msakarvadia/robot_math_equation_solver/assets/22324068/7881fdeb-70a1-4639-a570-bca53d0fb670" width="45%">
+</p>
 
 ### Future Works
 
