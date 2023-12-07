@@ -63,7 +63,7 @@ All of the scripts are in the `scripts` subdir.
 # TODO
 
 ### ROS Node Diagram
-![System Architecture](https://github.com/msakarvadia/robot_math_equation_solver/assets/90344922/cea4faa6-f625-4ed9-a2b0-7e2db1cec47d)
+![System Architecture](https://github.com/msakarvadia/robot_math_equation_solver/assets/90344922/8fc71949-0d91-4ee9-a964-4ae52ab35ef3)
 
 ### Execution
 
