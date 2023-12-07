@@ -147,7 +147,7 @@ Projection of phrase: "i love math"
 
 After we became confident with our inverse kinematics and character path planning code and the issues of maintaining consistent contact with the board still remained, we determined the root cause of our drawing inconsistencies likely come from variations related to the quality the robot's lidar and manipulator. For example, for turtlebot #1 below the "init position" where all joint angles are zeroed is far from accurate. The weight of the arm and marker is enough for it to slouch considerably. This will have a significant effect on where the end effector thinks it is.
 <p align="center">
-    <img src="https://github.com/msakarvadia/robot_math_equation_solver/assets/90344922/fbc3f409-7278-46e0-b098-acaf2b5200cd" width="90%">
+    <img src="https://github.com/msakarvadia/robot_math_equation_solver/assets/90344922/601a684d-6874-457e-b436-01a603464d33" width="90%">
 </p>
 
 ### Future Works
