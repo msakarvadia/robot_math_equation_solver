@@ -81,6 +81,7 @@ Execute program:
 - Bring up the turtlebot with camera
 - Place the turtlebot in viewing distance of where you will write math problems on the wall, also make sure it can reach the board
 - Grasp a dry-erase marker with the manipulator or tape one onto it
+- Launch the following:
 
 ```
 roslaunch turtlebot3_manipulation_bringup turtlebot3_manipulation_bringup.launch
@@ -94,6 +95,7 @@ rosrun image_transport republish compressed in:=raspicam_node/image raw out:=cam
 ```
 roslaunch robot_math_equation_solver robot_math.launch 
 ```
+-   Once the program has viewed an image from its camera, it will display how it has interpreted the math problem through a series of popups (these can be used to inspect if the handwriting is being read correctly and if the camera is properly positioned)
 
 ### Challenges
 
