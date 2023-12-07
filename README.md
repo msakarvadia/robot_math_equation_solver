@@ -135,6 +135,9 @@ When writing the solution to the math problem on the board, we had many challeng
 </p>
 
 After we became confident with our inverse kinematics and character path planning code and the issues of maintaining consistent contact with the board still remained, we started to look for other explanations on why the quality of our writing was so sensitive to changes in setup. To help with debugging the character coordinate paths which are passed to the inverse kinematics, we created a debug world in Gazebo, and several debug scripts to visualize the exact paths with respect to a wall and the lidar scans. After testing, this helped us rule out any serious issues with our character path calculations.
+![rviz](https://github.com/msakarvadia/robot_math_equation_solver/assets/90344922/d1072add-ff94-4de7-9e79-be6a242dc304)
+![gazebo](https://github.com/msakarvadia/robot_math_equation_solver/assets/90344922/4c5858f7-478d-479c-8dd5-fa303e3b58ad)
+![wall_projection](https://github.com/msakarvadia/robot_math_equation_solver/assets/90344922/fbc3f409-7278-46e0-b098-acaf2b5200cd)
 
 
 ### Future Works
