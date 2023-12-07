@@ -86,7 +86,7 @@ Preprocess training data and train CNN:
 python preprocess_data.py && python_train.py
 ```
 
-Robot preparaion:
+Robot preparation:
 - Bring up the turtlebot with camera
 - Place the turtlebot in viewing distance of where you will write math problems on the wall, also make sure it can reach the board
 - Grasp a dry-erase marker with the manipulator or tape one onto it

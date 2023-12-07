@@ -138,7 +138,6 @@ class CharacterPathGenerator:
                         char_path[(i-1)//2][2] = coord * CHAR_SCALE
 
         # Return an interpolated path if not space character
-        print(char_path.shape[0], char_path)
         if char_path.shape[0] != 2:
             return interpolate_path(char_path, CHAR_PATH_RESOLUTION)
         else:

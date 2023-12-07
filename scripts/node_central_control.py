@@ -61,11 +61,10 @@ class RobotMathCentralControl:
 
             #self.adjust_for_viewing()
 
-            #answer = self.run_inference()
+            answer = self.run_inference()
 
             #self.move_to("DRAWING_POS")
 
-            answer = "i `  math"
             self.draw_answer(answer)
 
             rospy.sleep(10)
@@ -170,13 +169,10 @@ class RobotMathCentralControl:
             else:
                 diff_adj = 0.0
 
-            print(front_avg_dist, target_dist)
-
             # Publish movement command using proportional control
             cmd.linear.x = direction * 0.2 * min(abs(front_avg_dist - target_dist), 0.7)
             cmd.angular.z = direction * 0.001 * diff_adj
             self.movement_pub.publish(cmd)
-
 
             rate.sleep()
         
