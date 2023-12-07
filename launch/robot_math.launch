@@ -1,8 +1,8 @@
 <launch>
   <!-- cursor position node -->
-  <node name="robot_math_wall_cursor_position_publisher" pkg="robot_math_equation_solver" type="node_tag_position_publisher.py" output="screen" />
+  <node name="robot_math_tag_position_publisher" pkg="robot_math_equation_solver" type="node_tag_position_publisher.py" output="screen" />
   <!-- cursor transformation node -->
-  <node name="robot_math_wall_cursor_serverS" pkg="robot_math_equation_solver" type="node_wall_transformation_calculator.py" output="screen" />
+  <node name="robot_math_wall_cursor_transformation_server" pkg="robot_math_equation_solver" type="node_wall_cursor_transformation.py" output="screen" />
   <!-- character path planning node -->
   <node name="robot_math_character_path_server" pkg="robot_math_equation_solver" type="node_character_path_planner.py" output="screen" />
   <!-- arm manipulator node -->

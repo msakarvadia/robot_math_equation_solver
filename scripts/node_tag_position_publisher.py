@@ -12,7 +12,7 @@ from robot_math_equation_solver.msg import CursorLocate
 TAG_NUM = 1
 
 
-class CursorPositionPublisher:
+class TagPositionPublisher:
     """
     Node that uses OpenCV to track the cursor location used for writing
     characters onto a wall in front of the robot. The initial writing
@@ -21,7 +21,7 @@ class CursorPositionPublisher:
     
 
     def __init__(self):
-        rospy.init_node("robot_math_wall_cursor_position_publisher")
+        rospy.init_node("robot_math_tag_position_publisher")
 
         # OpenCV bridge
         self.bridge = cv_bridge.CvBridge()
@@ -62,5 +62,5 @@ class CursorPositionPublisher:
 
 
 if __name__ == "__main__":
-    node = CursorPositionPublisher()
+    node = TagPositionPublisher()
     rospy.spin()

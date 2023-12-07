@@ -39,7 +39,7 @@ def get_yaw_from_pose(p):
     return yaw
 
 
-class CursorWallTransformation:
+class WallCursorTransformation:
     """
     A service which tracks the current location of the "virtual wall cursor".
 
@@ -53,10 +53,10 @@ class CursorWallTransformation:
 
 
     def __init__(self):
-        rospy.init_node("robot_math_wall_cursor_server")
+        rospy.init_node("robot_math_wall_cursor_transformation_server")
 
         # Start cursor position subscriber
-        self.cursor_locator = rospy.Subscriber("/robot_math/cursor_position", CursorLocate, self.cursor_position_callback)
+        self.cursor_locator = rospy.Subscriber("/robot_math/cursor_position", CursorLocate, self.tag_position_callback)
 
         # Cursor data
         self.y_offset = None
@@ -154,10 +154,10 @@ class CursorWallTransformation:
         self.y_offset = self.new_line_y_offset
 
 
-    def cursor_position_callback(self, cursor):
+    def tag_position_callback(self, cursor):
         """
         Callback method which updates the angle to the cursor based on the
-        cursor position publisher.
+        tag position publisher.
         """
 
         # Calculate hand-eye angle mapping
@@ -171,5 +171,5 @@ class CursorWallTransformation:
 
 
 if __name__ == "__main__":
-    server = CursorWallTransformation()
+    server = WallCursorTransformation()
     rospy.spin()
