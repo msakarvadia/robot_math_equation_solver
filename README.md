@@ -99,6 +99,17 @@ roslaunch robot_math_equation_solver robot_math.launch
 ```
 -   Once the program has processed an image taken from the camera, it will display its interpretation of the math problem through a series of popups (these can be used to inspect if the handwriting is the correct size and if the camera is properly positioned)
 
+
+## Video of robot performing equation solving:
+
+https://github.com/msakarvadia/robot_math_equation_solver/assets/68249601/2122ddd9-b758-4ad1-8b2f-3fa79541a3ff
+
+And a screenshot of the terminal where the image analysis results are:
+
+<img width="720" alt="Screen Shot 2023-12-05 at 9 56 31 PM" src="https://github.com/msakarvadia/robot_math_equation_solver/assets/68249601/1fdc8751-ee25-4617-ae8e-7e0b1806aed5">
+
+
+
 ### Challenges
 
 On the computer vision side we had many challenges operationalizing use of the trained NN on actual hand written whiteboard equations. This is because the equations we were writing on the board were "out of distribution" compared to the images we trained the neural network with. Whiteboards have shiny reflective surfaces: this means that there are shiny marks, shadows, leftover dry erase marker stains, random specs all around our white board. These marks would accidentally be caught by a bounding box (and then the NN would attempt to classify it). We found that we had to discard any bounding boxes that were too small to over come this challenge. Additionally, the sizing of our handdrawn charecters didn't quite match that of the training set; additinally, because our bounding boxes can have varried sizes we had to uniformly pad all of our bounding boxes and transform them to the appropriate dimentions for inference. This causes our charects to look warped (which causes misclassifications). To work around this issue, we allow a human-in-the-loop approach: we allow a humany to manual check and correct all equaitons before the are evaluated for an answer.
@@ -107,7 +118,6 @@ On the writing the answer on the board we had many challenges as well: We had to
 
 ![PXL_20231201_033412801](https://github.com/msakarvadia/robot_math_equation_solver/assets/22324068/e23cd354-c6c4-4cbf-9838-b877b3658d7d)
 ![PXL_20231201_033212889](https://github.com/msakarvadia/robot_math_equation_solver/assets/22324068/7881fdeb-70a1-4639-a570-bca53d0fb670)
-
 
 ### Future Works
 
