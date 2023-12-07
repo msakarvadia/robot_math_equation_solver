@@ -55,7 +55,9 @@ All of the scripts are in the `scripts` subdir.
 - This inference is done in `robot_math_control_node.py` in the `run_inference` method of the `RobotMathControlNode` class.
 - Note that prior to doing inference on an image of an equation: the image is broken up into smaller sub-images by using the `cv2` bounding box functionalty. We draw a bounding box around all continuous curves. We had to do some trouble shooting on this end to make sure we discarded bounding boxes that were too small (aka bounding boxes that had picked up a stray spec on the whiteboard).
 
-![CV](https://github.com/msakarvadia/robot_math_equation_solver/assets/22324068/787107c2-ce09-474b-bfdd-73cdf9ce8fc7)
+<p align="center">
+    <img src="https://github.com/msakarvadia/robot_math_equation_solver/assets/22324068/787107c2-ce09-474b-bfdd-73cdf9ce8fc7" width="90%">
+</p>
 
 
 #### Inverse Kinematics
@@ -72,7 +74,9 @@ The inverse kinematcis planner node (within the `node_numberwrite.py` script) wh
 # TODO
 
 ### ROS Node Diagram
-![System Architecture](https://github.com/msakarvadia/robot_math_equation_solver/assets/90344922/8fc71949-0d91-4ee9-a964-4ae52ab35ef3)
+<p align="center">
+    <img src="https://github.com/msakarvadia/robot_math_equation_solver/assets/90344922/8fc71949-0d91-4ee9-a964-4ae52ab35ef3" width="90%">
+</p>
 
 ### Execution
 
