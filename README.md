@@ -77,7 +77,7 @@ Preprocess the training data and train CNN:
 python preprocess_data.py && python_train.py
 ```
 
-After CNN is trained, bring up turtlebot with camera and launch the program:
+To execute program, bring up turtlebot with camera and launch the following in separate terminals:
 ```
 roslaunch turtlebot3_manipulation_bringup turtlebot3_manipulation_bringup.launch
 ```
