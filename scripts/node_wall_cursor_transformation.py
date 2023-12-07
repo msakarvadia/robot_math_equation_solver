@@ -17,9 +17,9 @@ from robot_math_utils import calc_wall_projection
 DEBUG = True
 
 # Constants for cursor positioning and size
-START_HEIGHT = 0.37
-CURSOR_WIDTH = 0.025
-CURSOR_HEIGHT = 0.05
+START_HEIGHT = 0.35
+CURSOR_WIDTH = 0.04
+CURSOR_HEIGHT = 0.045
 
 # Set calibration for manipulator-camera operation
 CAMERA_ANGLE_L = 0.2792

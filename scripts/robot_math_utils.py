@@ -9,7 +9,10 @@ from skimage.measure import ransac, LineModelND
 
 
 # Set lidar model
-LIDAR = "LDS"
+LIDAR = "RP"
+
+# Lidar is offset from manipulator frame
+LIDAR_OFFSET = 0.04
 
 
 class LidarSampler:
@@ -80,6 +83,10 @@ def calc_wall_projection():
                       residual_threshold=0.1)
     _, direction_vector = model.params
 
+    # Calculate translation
+    dist_to_wall = np.mean(wall_scan_dists)
+    translation = np.array([dist_to_wall + LIDAR_OFFSET, 0, 0])
+
     # Calculate rotation
     if direction_vector[1] / direction_vector[0] < 0:
         rot = 1
@@ -90,14 +97,10 @@ def calc_wall_projection():
     rotation = np.array([[math.cos(theta), -1 * math.sin(theta)],
                          [math.sin(theta), math.cos(theta)]])
 
-    # Calculate translation
-    dist_to_wall = np.mean(wall_scan_dists)
-    translation = np.array([dist_to_wall, 0, 0])
-
     # Build and flatten the matrix
     transform = np.zeros((4, 4))
-    transform[:2, :2] = rotation
     transform[:3, 3] = translation
+    transform[:2, :2] = rotation
     transform[2, 2] = 1
     transform[3, 3] = 1
 

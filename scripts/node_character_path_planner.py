@@ -12,7 +12,6 @@ from robot_math_equation_solver.srv import CharacterPath, CharacterPathResponse,
 from robot_math_utils import interpolate_path, y_rotate_hack
 
 
-LIDAR_OFFSET = 0.048                    # lidar is offset from manipulator frame
 CHAR_PATH_RESOLUTION = 0.001            # interpolation resolution in m
 CHAR_SCALE = 0.002                      # characters set to 0.04m wide (0.002 * 20)
 PEN_LIFT = {                            # position when pen is lifted
@@ -39,24 +38,23 @@ class CharacterPathGenerator:
     def __init__(self):
         rospy.init_node("robot_math_character_path_server")
 
-        # Start math string subscriber service
-        self.math_string_sub = rospy.Subscriber("/robot_math/math_strings", String, self.math_string_callback)
-
-        # Start cursor service proxy
-        rospy.wait_for_service("/robot_math/wall_cursor_service")
-        self.advance_cursor = rospy.ServiceProxy("/robot_math/wall_cursor_service", Cursor)
-
         # Load vectorized characters dictionary
         with open(dirname(dirname(__file__))+"/resources/hershey_font.json") as f:
             self.characters = load(f)
-
-        rospy.sleep(5)
 
         # Initialize service queue
         self.segment_queue = deque()
  
         # Start the service
         self.segment_service = rospy.Service("/robot_math/character_path_service", CharacterPath, self.service_response)
+
+        # Start cursor service proxy
+        rospy.wait_for_service("/robot_math/wall_cursor_service")
+        self.advance_cursor = rospy.ServiceProxy("/robot_math/wall_cursor_service", Cursor)
+
+        # Start math string subscriber service
+        self.math_string_sub = rospy.Subscriber("/robot_math/math_strings", String, self.math_string_callback)
+
        
 
     def service_response(self, request):
@@ -94,12 +92,11 @@ class CharacterPathGenerator:
                 continue
 
             # Add the cursor offset and calculate wall transformation
-            #char_path = y_rotate_hack(base_path, 0.45)
-            char_path = base_path
+            char_path = y_rotate_hack(base_path, 0.25)
+            #char_path = base_path
             char_path += np.array([0, wall_cursor.y_offset, wall_cursor.z_offset, 1])
             transform = np.array(wall_cursor.transform).reshape(4, 4)
             char_path = np.dot(transform, np.transpose(char_path)).transpose()
-            char_path += np.array([LIDAR_OFFSET, 0.0, 0.0, 0.0])
 
             # Enqueue flattened list of 3D points for inverse kinematics
             self.segment_queue.append(list(char_path[:,:3].flatten()))
@@ -140,8 +137,12 @@ class CharacterPathGenerator:
                     else:
                         char_path[(i-1)//2][2] = coord * CHAR_SCALE
 
-        # Return an interpolated path
-        return interpolate_path(char_path, CHAR_PATH_RESOLUTION)
+        # Return an interpolated path if not space character
+        print(char_path.shape[0], char_path)
+        if char_path.shape[0] != 2:
+            return interpolate_path(char_path, CHAR_PATH_RESOLUTION)
+        else:
+            return char_path
 
 
     def get_cursor(self):

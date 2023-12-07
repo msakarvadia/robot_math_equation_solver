@@ -18,7 +18,7 @@ from robot_math_equation_solver.msg import CursorLocate
 path_prefix = os.path.dirname(__file__) 
 
 
-TARGET_DRAWING_DIST = 0.3
+TARGET_DRAWING_DIST = 0.225
 TARGET_VIEWING_DIST = 0.7
 
 
@@ -61,10 +61,11 @@ class RobotMathCentralControl:
 
             #self.adjust_for_viewing()
 
-            answer = self.run_inference()
+            #answer = self.run_inference()
 
             #self.move_to("DRAWING_POS")
 
+            answer = "i `  math"
             self.draw_answer(answer)
 
             rospy.sleep(10)
@@ -150,8 +151,11 @@ class RobotMathCentralControl:
         rate = rospy.Rate(10)
         while abs(front_avg_dist - target_dist) > 0.05:
             # Compare distance to board and target
-            front_scan, _ = LidarSampler.lidar_front()
-            front_avg_dist = np.mean(front_scan)
+            front_scans = np.empty([0,])
+            for _ in range(3):
+                front_scan, _ = LidarSampler.lidar_front()
+                front_scans = np.concatenate((front_scans, front_scan))
+            front_avg_dist = np.mean(front_scans)
 
             # Set direction of travel relative to target distance
             if front_avg_dist - target_dist > 0:
@@ -162,14 +166,17 @@ class RobotMathCentralControl:
             # Adjust orientation to cursor
             cursor = self.cursor_msg
             if cursor.cursor_loc != -1:
-                diff_adj = (cursor.image_width / 2) - cursor.cursor_loc 
+                diff_adj = ((cursor.image_width / 2) - cursor.cursor_loc) * direction
             else:
                 diff_adj = 0.0
 
+            print(front_avg_dist, target_dist)
+
             # Publish movement command using proportional control
-            cmd.linear.x = direction * 0.2 * min(abs(front_avg_dist - target_dist), 1)
+            cmd.linear.x = direction * 0.2 * min(abs(front_avg_dist - target_dist), 0.7)
             cmd.angular.z = direction * 0.001 * diff_adj
             self.movement_pub.publish(cmd)
+
 
             rate.sleep()
         
