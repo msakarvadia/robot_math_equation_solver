@@ -25,7 +25,8 @@ In this project we enable a turtlebot to "read" a math equation using computer v
 ### System Architecture 
 
 All of the scripts are in the `scripts` subdir.
-![System Architecture](https://github.com/msakarvadia/robot_math_equation_solver/assets/90344922/88ccec82-cb20-473e-a0c8-826d04106a72)
+![System Architecture](https://github.com/msakarvadia/robot_math_equation_solver/assets/90344922/cea4faa6-f625-4ed9-a2b0-7e2db1cec47d)
+
 
 #### Data
 
