@@ -77,10 +77,11 @@ Preprocess training data and train CNN:
 python preprocess_data.py && python_train.py
 ```
 
-Turtlebot setup:
+Program preparaion:
 - Bring up the turtlebot with camera
 - Place the turtlebot in viewing distance of where you will write math problems on the wall, also make sure it can reach the board
 - Grasp a dry-erase marker with the manipulator or tape one onto it
+- Set Lidar constant to "RP" / "LDS" at the top of `robot_math_utils.py`
 
 Execute program:
 
