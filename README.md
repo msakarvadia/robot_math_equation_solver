@@ -72,12 +72,16 @@ Install prerequisites:
 pip install opencv-contrib-python==4.6.0.66 scikit-image torch 
 ```
 
-Preprocess the training data and train CNN:
+Preprocess training data and train CNN:
 ```
 python preprocess_data.py && python_train.py
 ```
 
-To execute program, bring up turtlebot with camera and launch the following in separate terminals:
+Execute program:
+- Bring up the turtlebot with camera
+- Place the turtlebot in viewing distance of where you will write math problems on the wall, also make sure it can reach the board
+- Grasp a dry-erase marker with the manipulator or tape one onto it
+
 ```
 roslaunch turtlebot3_manipulation_bringup turtlebot3_manipulation_bringup.launch
 ```
