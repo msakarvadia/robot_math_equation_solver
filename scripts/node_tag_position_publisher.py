@@ -11,6 +11,7 @@ from robot_math_equation_solver.msg import CursorLocate
 # Set tag for cursor
 TAG_NUM = 1
 
+
 class CursorPositionPublisher:
     """
     Node that uses OpenCV to track the cursor location used for writing
