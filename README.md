@@ -25,7 +25,6 @@ In this project we enable a turtlebot to "read" a math equation using computer v
 ### System Architecture 
 
 All of the scripts are in the `scripts` subdir.
-![System Architecture](https://github.com/msakarvadia/robot_math_equation_solver/assets/90344922/cea4faa6-f625-4ed9-a2b0-7e2db1cec47d)
 
 
 #### Data
@@ -64,8 +63,7 @@ All of the scripts are in the `scripts` subdir.
 # TODO
 
 ### ROS Node Diagram
-
-# TODO
+![System Architecture](https://github.com/msakarvadia/robot_math_equation_solver/assets/90344922/cea4faa6-f625-4ed9-a2b0-7e2db1cec47d)
 
 ### Execution
 
