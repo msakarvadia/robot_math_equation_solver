@@ -134,7 +134,7 @@ When writing the solution to the math problem on the board, we had many challeng
     <img src="https://github.com/msakarvadia/robot_math_equation_solver/assets/22324068/7881fdeb-70a1-4639-a570-bca53d0fb670" width="45%">
 </p>
 
-To help with debugging the character coordinate paths which are passed to the inverse kinematics, we created a debug world in Gazebo, and several debug scripts to visualize the exact paths with respect to a wall and the lidar scans. After testing, this helped us rule out any serious issues with our character path calculations. In the below images, the red line signifies the estimated wall position where the character paths are transformed onto this plane. For some reason, the lidar points from gazebo are shifted slightly closer in Rviz, but you can match the distances through other means.
+To help with debugging the character coordinate, we created a debug world in Gazebo, and several debug scripts to visualize the exact paths with respect to a wall and the lidar scans. After testing, this helped us rule out any serious issues with our character path calculations. In the below images, the red line signifies the estimated wall position where the character paths are transformed onto this plane. For some reason, the lidar points from gazebo are shifted slightly closer in Rviz, but you can match the distances through other means.
 
 <p align="center">
     <img src="https://github.com/msakarvadia/robot_math_equation_solver/assets/90344922/d1072add-ff94-4de7-9e79-be6a242dc304" width="45%">
@@ -145,7 +145,7 @@ Projection of phrase: "i love math"
     <img src="https://github.com/msakarvadia/robot_math_equation_solver/assets/90344922/fbc3f409-7278-46e0-b098-acaf2b5200cd" width="45%">
 </p>
 
-After we became confident with our inverse kinematics and character path planning code and the issues of maintaining consistent contact with the board still remained, we determined the root cause of our drawing inconsistencies likely come from variations related to the quality the robot's lidar and manipulator. For example, for turtlebot #1 below the "init position" where all joint angles are zeroed is far from accurate. The weight of the arm and marker is enough for it to slouch considerably. This will have a significant effect on where the end effector thinks it is.
+After we became confident with our inverse kinematics and character path planning code and the issues of maintaining consistent contact with the board still remained, we determined the root causes of our drawing inconsistencies likely come from variations related to the quality the robot's lidar and manipulator. For example, with turtlebot #1 below, the "init position" where all joint angles are zeroed is far from accurate. The weight of the arm and marker is enough for it to slouch considerably. This will have a significant effect on the end effector's position.
 <p align="center">
     <img src="https://github.com/msakarvadia/robot_math_equation_solver/assets/90344922/601a684d-6874-457e-b436-01a603464d33" width="90%">
 </p>
