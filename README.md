@@ -69,24 +69,26 @@ All of the scripts are in the `scripts` subdir.
 
 Install prerequisites:
 ```
-$ pip install opencv-contrib-python==4.6.0.66 scikit-image torch 
+pip install opencv-contrib-python==4.6.0.66 scikit-image torch 
 ```
 
 Preprocess the training data and train CNN:
 ```
-$ python preprocess_data.py
-$ python python_train.py
+python preprocess_data.py && python_train.py
 ```
 
 After CNN is trained, bring up turtlebot with camera and launch the program:
 ```
-$ roslaunch turtlebot3_manipulation_bringup turtlebot3_manipulation_bringup.launch
-
-$ roslaunch turtlebot3_manipulation_moveit_config move_group.launch
-
-$ rosrun image_transport republish compressed in:=raspicam_node/image raw out:=camera/rgb/image_raw
-
-$ roslaunch robot_math_equation_solver robot_math.launch 
+roslaunch turtlebot3_manipulation_bringup turtlebot3_manipulation_bringup.launch
+```
+```
+roslaunch turtlebot3_manipulation_moveit_config move_group.launch
+```
+```
+rosrun image_transport republish compressed in:=raspicam_node/image raw out:=camera/rgb/image_raw
+```
+```
+roslaunch robot_math_equation_solver robot_math.launch 
 ```
 
 ### Challenges
