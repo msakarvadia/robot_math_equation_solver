@@ -126,7 +126,7 @@ class InverseKinematicsPlanner:
         start = points[0]
         t1, t2, t3 = inv_kin(start[0], start[1], start[2])
         self.move_group_arm.go([t1, t2, t3, 0.0], wait=True)
-        rospy.sleep(5)
+        rospy.sleep(1)
 
         # Create joint trajectory using inverse kinematics
         time_increment = 0.03
@@ -139,7 +139,7 @@ class InverseKinematicsPlanner:
 
         # Execute trajectory
         self.move_group_arm.execute(trajectory, wait=True)
-        rospy.sleep(time_increment * len(points) + 7)
+        rospy.sleep(time_increment * len(points))
 
 
 if __name__ == "__main__":

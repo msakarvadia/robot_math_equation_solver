@@ -166,7 +166,8 @@ class CursorWallTransformation:
         """
 
         # Draw 10 lidar scans to use in estimation
-        wall_points = np.empty([1,2]) 
+        wall_points = np.empty([0,2]) 
+        wall_scan_dists = np.empty([0,])
         for _ in range(10):
             # Convert readings to cartesian coordinates and stack the points
             scan_data, angles = LidarSampler.lidar_front()
@@ -174,6 +175,7 @@ class CursorWallTransformation:
             y = np.sin(angles) * scan_data
             lidar_sample = np.column_stack((x, y))
             wall_points = np.concatenate((wall_points, lidar_sample))
+            wall_scan_dists = np.concatenate((wall_scan_dists, scan_data))
 
         # Estimate wall location
         model, _ = ransac(wall_points, 
@@ -181,16 +183,20 @@ class CursorWallTransformation:
                           min_samples=5,
                           max_trials=100,
                           residual_threshold=0.1)
-        origin, direction_vector = model.params
+        _, direction_vector = model.params
 
         # Calculate rotation
-        theta = math.atan2(direction_vector[0], direction_vector[1])
+        if direction_vector[1] / direction_vector[0] < 0:
+            rot = 1
+        else:
+            rot = -1
+        rot_vector = abs(direction_vector)
+        theta = rot * math.atan2(rot_vector[0], rot_vector[1])
         rotation = np.array([[math.cos(theta), -1 * math.sin(theta)],
                              [math.sin(theta), math.cos(theta)]])
 
         # Calculate translation
-        c = ((direction_vector[1] / direction_vector[0]) * (-1 * origin[0]) + origin[1])
-        self.dist_to_wall = (abs(c) / math.sqrt((direction_vector[1] / direction_vector[0])**2 + 1))
+        self.dist_to_wall = np.mean(wall_scan_dists)
         translation = np.array([self.dist_to_wall, 0, 0])
 
         # Build and flatten the matrix

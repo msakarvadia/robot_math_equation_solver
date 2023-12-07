@@ -94,11 +94,12 @@ class CharacterPathGenerator:
                 continue
 
             # Add the cursor offset and calculate wall transformation
-            char_path = y_rotate_hack(base_path, 0.45)
-            #char_path = base_path
+            #char_path = y_rotate_hack(base_path, 0.45)
+            char_path = base_path
             char_path += np.array([0, wall_cursor.y_offset, wall_cursor.z_offset, 1])
             transform = np.array(wall_cursor.transform).reshape(4, 4)
             char_path = np.dot(transform, np.transpose(char_path)).transpose()
+            char_path += np.array([LIDAR_OFFSET, 0.0, 0.0, 0.0])
 
             # Enqueue flattened list of 3D points for inverse kinematics
             self.segment_queue.append(list(char_path[:,:3].flatten()))
@@ -127,10 +128,10 @@ class CharacterPathGenerator:
                 if i % 2 == 0:
                     # Set x and y
                     if coord == -1:
-                        char_path[i//2][0] = LIDAR_OFFSET + PEN_LIFT["x"]
+                        char_path[i//2][0] = PEN_LIFT["x"]
                         char_path[i//2][1] = PEN_LIFT["y"]
                     else:
-                        char_path[i//2][0] = LIDAR_OFFSET
+                        char_path[i//2][0] = 0.0
                         char_path[i//2][1] = -1 * coord * CHAR_SCALE
                 else:
                     # Set z
