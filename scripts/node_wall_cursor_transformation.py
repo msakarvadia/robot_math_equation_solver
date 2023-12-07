@@ -56,7 +56,7 @@ class WallCursorTransformation:
         rospy.init_node("robot_math_wall_cursor_transformation_server")
 
         # Start cursor position subscriber
-        self.cursor_locator = rospy.Subscriber("/robot_math/cursor_position", CursorLocate, self.tag_position_callback)
+        self.cursor_locator = rospy.Subscriber("/robot_math/tag_position", CursorLocate, self.tag_position_callback)
 
         # Cursor data
         self.y_offset = None
@@ -157,7 +157,7 @@ class WallCursorTransformation:
     def tag_position_callback(self, cursor):
         """
         Callback method which updates the angle to the cursor based on the
-        tag position publisher.
+        tag position.
         """
 
         # Calculate hand-eye angle mapping

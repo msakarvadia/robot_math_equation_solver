@@ -42,8 +42,8 @@ class RobotMathCentralControl:
         self.manipulator_sub = rospy.Subscriber("/robot_math/manipulator_busy", Bool, self.manipulator_callback)
         self.manipulator_busy = False
         
-        # Start cursor locator subscriber
-        self.cursor_locator = rospy.Subscriber("/robot_math/cursor_position", CursorLocate, self.cursor_position_callback) 
+        # Start tag locator subscriber
+        self.tag_locator = rospy.Subscriber("/robot_math/tag_position", CursorLocate, self.tag_position_callback) 
         self.cursor_msg = CursorLocate(cursor_loc=-1,image_width=0)
 
         # Set up vision
@@ -178,7 +178,7 @@ class RobotMathCentralControl:
         self.movement_pub.publish(cmd)
  
 
-    def cursor_position_callback(self, cursor):
+    def tag_position_callback(self, cursor):
         """
         Callback method for positioning the cursor.
         """

@@ -52,7 +52,7 @@ class LidarSampler:
         return scan_data, angles
 
 
-def calc_wall_projection(self):
+def calc_wall_projection():
     """
     Utility function that estimates the transformation matrix for projecting characters
     (or any other points from the robot's coordinate frame) onto a (flat, vertical) 

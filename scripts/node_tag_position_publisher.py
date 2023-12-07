@@ -30,7 +30,7 @@ class TagPositionPublisher:
         self.aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_50)
 
         # Publish angle (radians) to cursor tag
-        self.cursor_pub = rospy.Publisher('/robot_math/cursor_position', CursorLocate, queue_size=10, latch=True)
+        self.cursor_pub = rospy.Publisher('/robot_math/tag_position', CursorLocate, queue_size=10, latch=True)
 
         # Subscribe to camera feed
         self.image_sub = rospy.Subscriber('/camera/rgb/image_raw', Image, self.image_callback)
