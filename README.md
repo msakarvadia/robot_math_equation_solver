@@ -95,7 +95,7 @@ rosrun image_transport republish compressed in:=raspicam_node/image raw out:=cam
 ```
 roslaunch robot_math_equation_solver robot_math.launch 
 ```
--   Once the program has processed an image taken from the camera, it will display its interpretation of the math problem through a series of popups (these can be used to inspect if the handwriting is being read correctly and if the camera is properly positioned)
+-   Once the program has processed an image taken from the camera, it will display its interpretation of the math problem through a series of popups (these can be used to inspect if the handwriting is the correct size and if the camera is properly positioned)
 
 ### Challenges
 
