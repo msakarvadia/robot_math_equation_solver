@@ -50,7 +50,7 @@ The equations we used were adapted from the paper "Design of a Three Degrees of 
 
 The inverse kinematics planner node (within the `node_numberwrite.py` script) when run receives data from the character path server, and creates a joint trajectory within the `write_num_trajectory()` function. This is done by creating a start point which is inputted into the inv_kin solver, and then subsequently doing the same for all the other points that compromise the current character. The joint trajectory is then executed, allowing the arm to fulfil the movements required to trace the character on the whiteboard, within the same function.
 
-#### Character Path
+#### Character Paths
 A character path is determined once the robot has reached a drawing position. As this project has not fully implemented writing with movement, the robot will be in the position you place it. Once the math equation has been processed by the CNN, the answer string is published on the topic `robot_math/math_strings`. This string is processed by the server from `node_character_path_planner.py`, which creates base paths for each character of the string and transforms the paths from the manipulator coordinate frame to the plane of the wall. It does this through communication with another server from `node_wall_cursor_transformation.py` which uses the `scan`, `odom`, and `robot_math/tag_position` topics to monitor robot movement and update the wall transformation matrix and y/z offsets for the next character in the string. Using servers for these two tasks allowed us to create simpler code as the inverse kinematics node can request the next character when it's ready and does not need to manage an excess amount of topics and message types. 
 
 Essentially, the creation and distribution of character paths is controlled by the character path planner server. Strings published on `robot_math/math_string` serve as a request for the manipulator to start writing, and this server watches for these strings, creating paths as they are published and storing them in a queue.
@@ -134,7 +134,12 @@ Even after gaining confidence in our inverse kinematics and character path plann
 
 ## Future Works
 
-In future works we may attempt to train a deeper and more robust computer vision model. Right now, we only used a single dataset, and as a result, our model failed to generalize to our handwritten digits at times. To overcome this we needed to allow a human to manually correct any wrongly classified digits/symbols. Additionally, we may further tune parameters related to how our robot writes the answer on the board; right now the arm is a bit shaky and with more testing/tuning we could make this better.
+In future works we may attempt to train a deeper and more robust computer vision model. Right now, we only used a single dataset, and as a result, our model failed to generalize to our handwritten digits at times. To overcome this we currently need a human to manually correct any wrongly classified digits/symbols. 
+
+Much related to developing a more robust computer vision model is the future use of tags to mark the start of a writing position on the wall. Once our computer vision allows movement of the robot we can attempt more complex tasks such as backing away from the wall, reading the math equation, and then moving to a writing position marked by a tag to write the answer. Another use-case of this capability would be the writing of long strings that require repositioning of the robot. 
+
+Currently, our program can locate any tag in of its camera. It can also move back and forth between preset distances in front of this tagged wall. It's wall transformation service can also detect these movements and recalculate the necessary transformations for projecting characters onto the wall at the new robot positions. The only change we would need to write long strings that require repositioning, is a node that not only tracks where the tag is located, but also can determine where the last written character of the robot is.
+
 
 ## Takeaways
 
