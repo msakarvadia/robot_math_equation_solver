@@ -150,3 +150,11 @@ Currently, our program can locate any tag in of its camera. It can also move bac
 ## Takeaways
 
 When developing applications for robots, one must always be careful that the test cases actually represent the situation in which the robot will operate. In our case, for the computer vision task the images we used to train our CNN didn't completely represent all of the possibilities that the robot will actually see. Additionally, with the inverse kinematics work we debugged a lot of our work in gazebo; however, in real life, we faced the additional challenges of making a robot hold a real pen and have it apply constant pressure. Additionally, some robot applications may be able to tolerate a certain degree of uncertainty/inaccuracy. For example, in our case since we have a human checking the outputs of our CNN during every iteration we can suffice with a smaller (less accurate network). However, in a production grade environment it may not be realistic/scalable to always have a human in the loop. In these cases, it is worthwhile spending more computational power upfront training a more powerful NN to do classifications.
+
+
+#### References
+-   https://www.ijcaonline.org/archives/volume179/number37/farman-2018-ijca-916848.pdf
+-   https://opentextbooks.clemson.edu/wangrobotics/chapter/inverse-kinematics/
+-   https://moveit.picknik.ai/main/doc/examples/motion_planning_python_api/motion_planning_python_api_tutorial.html
+-   https://classic.gazebosim.org/tutorials?tut=drcsim_animate_joints&cat=drcsim
+-   https://roboticsproject.readthedocs.io/en/latest/overview.html
