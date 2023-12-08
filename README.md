@@ -154,7 +154,6 @@ When developing applications for robots, one must always be careful that the tes
 
 #### References
 -   https://www.ijcaonline.org/archives/volume179/number37/farman-2018-ijca-916848.pdf
--   https://opentextbooks.clemson.edu/wangrobotics/chapter/inverse-kinematics/
 -   https://moveit.picknik.ai/main/doc/examples/motion_planning_python_api/motion_planning_python_api_tutorial.html
 -   https://classic.gazebosim.org/tutorials?tut=drcsim_animate_joints&cat=drcsim
 -   https://roboticsproject.readthedocs.io/en/latest/overview.html
