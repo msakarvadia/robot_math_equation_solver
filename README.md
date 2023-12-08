@@ -56,9 +56,9 @@ A character path is determined once the robot has reached a drawing position. As
 Essentially, the creation and distribution of character paths is controlled by the character path planner server. Strings published on `robot_math/math_string` serve as a request for the manipulator to start writing, and this server watches for these strings, creating paths as they are published and storing them in a queue.
 
 #### Central Control Node
-To manage our program's execution, we created a central control node that loops over the process of running inference on the image in the camera's view and then writing answers to the board in front of the robot. The node executes the `process_and_predict_answer_from_cropped_images()` function from `test.py` to start the inference. It then initiates the writing of a string by publishing to the `robot_math/math_strings` topic. Following this, it waits for the writing to finish by monitoring the `robot_math/manipulator_busy` topic.
+To manage our program's execution, we created a control node that loops over the process of running inference on the image in the camera's field of view and writing answers to the board in front of the robot. The node executes the `process_and_predict_answer_from_cropped_images()` function from `test.py` to start the inference. It then initiates the writing of a string by publishing to the `robot_math/math_strings` topic. Following this, it waits for the writing to finish by monitoring the `robot_math/manipulator_busy` topic.
 
-This node also can move to and from viewing and writing positions based on the location of tags on the wall if needed. The idea behind this functionality is described below in "Future Works" section.
+This node can also direct movements to and from viewing and writing positions based on the location of tags on the wall if needed. The idea behind this functionality is described below in "Future Works" section.
 
 
 ### ROS Node Diagram
