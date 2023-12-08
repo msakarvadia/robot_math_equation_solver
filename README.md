@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
 # robot_math_equation_solver
 Use a turtlebot + arm + camera to recognize handwritten math equations and write the answer on a whiteboard
 
@@ -78,7 +76,7 @@ The inverse kinematcis planner node (within the `node_numberwrite.py` script) wh
     <img src="https://github.com/msakarvadia/robot_math_equation_solver/assets/90344922/8fc71949-0d91-4ee9-a964-4ae52ab35ef3" width="90%">
 </p>
 
-### Execution
+## Execution
 
 Install prerequisites:
 ```
@@ -113,7 +111,7 @@ roslaunch robot_math_equation_solver robot_math.launch
 -   Once the program has processed an image taken from the camera, it will display its interpretation of the math problem through a series of popups (these can be used to inspect if the handwriting is the correct size and if the camera is properly positioned)
 
 
-## Video of robot performing equation solving:
+## Video of Robot Solving an Equation
 
 https://github.com/msakarvadia/robot_math_equation_solver/assets/68249601/2122ddd9-b758-4ad1-8b2f-3fa79541a3ff
 
@@ -124,11 +122,11 @@ And a screenshot of the terminal where the image analysis results are:
 </p>
 
 
-### Challenges
+## Challenges
 
 On the computer vision side we had many challenges operationalizing use of the trained NN on actual hand written whiteboard equations. This is because the equations we were writing on the board were "out of distribution" compared to the images we trained the neural network with. Whiteboards have shiny reflective surfaces: this means that there are shiny marks, shadows, leftover dry erase marker stains, random specs all around our white board. These marks would accidentally be caught by a bounding box (and then the NN would attempt to classify it). We found that we had to discard any bounding boxes that were too small to over come this challenge. Additionally, the sizing of our handdrawn charecters didn't quite match that of the training set; additinally, because our bounding boxes can have varried sizes we had to uniformly pad all of our bounding boxes and transform them to the appropriate dimentions for inference. This causes our charects to look warped (which causes misclassifications). To work around this issue, we allow a human-in-the-loop approach: we allow a humany to manual check and correct all equaitons before the are evaluated for an answer.
 
-When writing the solution to the math problem on the board, we had many challenges as well. As we debugged our inverse kinematics and character path planning we had to deal with the problem of the pen not applying consistent pressure on the whiteboard while writing. To overcome this, we created a device using a spring and small tube where the pen would be placed. The spring helps keep the pen in contact with the board without ruining it, or generating too much torque in the manipulator.
+When writing the solution to the math problem on the board, we had many challenges as well. As we debugged our inverse kinematics and character path planning we had to deal with the problem of the pen not applying consistent pressure on the whiteboard while writing. To overcome this, we created a device using a spring and small tube where the pen would be placed. The spring helps keep the pen stay in contact with the board without ruining it, or generating too much torque in the manipulator and shifting the robot's position.
 <p align="center">
     <img src="https://github.com/msakarvadia/robot_math_equation_solver/assets/22324068/e23cd354-c6c4-4cbf-9838-b877b3658d7d" width="45%">
     <img src="https://github.com/msakarvadia/robot_math_equation_solver/assets/22324068/7881fdeb-70a1-4639-a570-bca53d0fb670" width="45%">
@@ -145,18 +143,15 @@ Projection of phrase: "i love math"
     <img src="https://github.com/msakarvadia/robot_math_equation_solver/assets/90344922/fbc3f409-7278-46e0-b098-acaf2b5200cd" width="45%">
 </p>
 
-After gaining confidence in our inverse kinematics and character path planning code, the issues of maintaining consistent contact with the board still remained. We determined the root causes of our drawing inconsistencies likely come from variations related to the quality the robot's lidar and manipulator. For example, with turtlebot #1 below, the "init position" where all joint angles are zeroed is far from accurate. The weight of the arm and marker is enough for it to slouch considerably. This will have a significant effect on the end effector's position.
+Even after gaining confidence in our inverse kinematics and character path planning code, the issues of maintaining consistent contact with the board still remained. We determined the root causes of our drawing inconsistencies likely come from variations related to the quality the robot's lidar and manipulator. For example, with turtlebot #1 below, the "init position" where all joint angles are zeroed is far from accurate. The weight of the arm and marker is enough for it to slouch considerably. This will have a significant effect on the end effector's position.
 <p align="center">
     <img src="https://github.com/msakarvadia/robot_math_equation_solver/assets/90344922/601a684d-6874-457e-b436-01a603464d33" width="90%">
 </p>
 
-### Future Works
+## Future Works
 
 In future works we may attempt to train a deeper and more robust computer vision model. Right now, we only used a single dataset, and as a result, our model failed to generalize to our handwritten digits at times. To overcome this we needed to allow a human to manually correct any wrongly classified digits/symbols. Additionally, we may further tune parameters related to how our robot writes the answer on the board; right now the arm is a bit shakey and with more testing/tuning we could make this better.
 
-### Takeaways
+## Takeaways
 
 When developing applications for robots, one must always be careful that the test cases actually represent the situation in which the robot will operate. In our case, for the computer vision task the images we used to train our CNN didn't completally represent all of the possibilites that the robot will actually see. Additionally, with the inverse kinematics work we debugged a lot of our work in gazebo; however, in real life, we faced the additional challenges of making a robot hold a real pen and have it apply constant pressue. Additionally, some robot applications may be able to tolerate a certain degree of uncertainty/inaccuracy. For example, in our case since we have a human checking the outputs of our CNN during every iteration we can suffice with a smaller (less accurate network). However, in a production grade environment it may not be realistic/scalable to always have a human in the loop. In these cases, it is worthwhile spending more computational power upfront training a more powerful NN to do classifications.
-
-=======
-
